@@ -4,7 +4,9 @@ function App() {
 
   return (
     <>
-      CrossClash
+      <div className='text-5xl'>
+         CrossClash
+      </div>
     </>
   )
 }
