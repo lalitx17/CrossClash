@@ -1,6 +1,7 @@
 import './App.css'
 import { crossWordData } from './assets/crossword.ts'
 import Crossword from '@slikslaks/react-crossword';
+import { saveAs } from 'file-saver';
 
 export default function App() {
 
@@ -45,9 +46,15 @@ downClues.forEach((clue, index) => {
 
 console.log(data);
 
+const saveFile = () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  saveAs(blob, 'crosswordData.json');
+};
+
   return (
     <>
       <div>
+      <button onClick={saveFile}>Save Data</button>
       <Crossword data={data} useStorage={false} />
       </div>
     </>
