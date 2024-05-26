@@ -12,15 +12,14 @@ export class Game {
         this.player1.send(JSON.stringify({
             type: INIT_GAME,
             payload: {
-                data: "ho gaya hai tujhko to pyar sajna"
+                data: crosswordData
             }
         }));
         this.player2.send(JSON.stringify({
             type: INIT_GAME,
             payload: {
-                data: "ho gaya hai tujhko to pyar sajna"
+                data: crosswordData
             }
         }));
     }
-
 }
