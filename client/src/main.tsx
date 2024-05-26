@@ -8,6 +8,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <App />
+  }, 
+  {
+    path: '/game',
+    element: <h1>Game</h1>
   }
 ])
 
