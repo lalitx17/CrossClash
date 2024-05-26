@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { Game } from './screens/Game.tsx'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
@@ -11,7 +12,7 @@ const router = createBrowserRouter([
   }, 
   {
     path: '/game',
-    element: <h1>Game</h1>
+    element: <Game />
   }
 ])
 

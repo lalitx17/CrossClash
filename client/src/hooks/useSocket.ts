@@ -10,6 +10,7 @@ export const useSocket = () => {
 
         ws.onopen = () => {
             setSocket(ws);
+            console.log("Connected");
         }
 
         ws.onclose = () => {

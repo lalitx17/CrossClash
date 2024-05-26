@@ -11,14 +11,14 @@ export class Game {
         this.player2 = player2;
         this.player1.send(JSON.stringify({
             type: INIT_GAME,
-            paylod: {
-                data: crosswordData
+            payload: {
+                data: "ho gaya hai tujhko to pyar sajna"
             }
         }));
         this.player2.send(JSON.stringify({
             type: INIT_GAME,
-            paylod: {
-                data: crosswordData
+            payload: {
+                data: "ho gaya hai tujhko to pyar sajna"
             }
         }));
     }
