@@ -1,6 +1,23 @@
 
-.crossword-input {
-  outline: none !important; /* Remove the default outline */
-  border: none !important; /* Remove the default border */
+/* .crossword-input {
+  opacity: 0; 
+  position: absolute; 
+  pointer-events: none;
+} */
 
-}
+/* .crossword-input {
+  position: absolute;
+  top: 86.2333%;
+  left: 6.66667%;
+  width: 6.66667%;
+  height: 6.66667%;
+  font-size: 2vw; 
+  text-align: center;
+  background-color: transparent;
+  caret-color: transparent;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  cursor: default;
+  box-sizing: border-box; 
+} */

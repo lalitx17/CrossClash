@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
 import { useSocket } from '../hooks/useSocket';
 import { Button } from '../components/Button';
-import Crossword from '@slikslaks/react-crossword';
 import { CrosswordProvider, DirectionClues, CrosswordGrid } from '@slikslaks/react-crossword';
 
 export const INIT_GAME = "init_game";
@@ -62,11 +61,13 @@ export const Game = () => {
         }} >
             Play
         </Button>}
-        {started && <div className="mx-auto w-4/5 flex flex-row gap-x-10">
+        {started && <div>
           
           <CrosswordProvider data={crosswordData} >
           <DirectionClues  direction="across" />
+          <div style={{ width: '50em' }}>
           <CrosswordGrid />
+          </div>
             <DirectionClues direction="down" />
             </CrosswordProvider>
             {/* <Crossword data={crosswordData} /> */}

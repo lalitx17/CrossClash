@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { Game } from './screens/Game.tsx'
+import './App.css'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
