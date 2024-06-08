@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
   return (
     <div className="relative">
       {/* Navbar */}
-      <nav className="bg-gray-800 py-6 px-10 flex justify-between items-center">
+      <nav className="bg-primaryBackground py-6 px-10 flex justify-between items-center">
         <div className="text-white font-bold md:text-4xl mb-1">CrossClash</div>
         <div className="hidden md:flex space-x-4 mr-14">
           <a href="#" className="text-gray-300 hover:text-white">

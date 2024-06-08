@@ -10,20 +10,26 @@ export default function App() {
   }
 
 
-
   return (
-    <>
-    <div className="min-h-screen bg-stone-800 flex flex-col items-center justify-center space-y-4">
-      <button onClick={onevsoneHandler} className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">
-        1v1
-      </button>
-      <button className="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-700">
-        Single
-      </button>
-      <button className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-700">
-        Team
-      </button>
-    </div>
+    <><div>
+        <div className="flex flex-row flex-wrap justify-around py-[10em] bg-secondaryBackground">
+          <div className="flex flex-col justify-center gap-y-5">
+            <div className="text-white font-bold md:text-4xl mb-1">Battle of the words.</div>
+            <button onClick={onevsoneHandler} className="bg-button text-white font-bold py-2 px-4 rounded hover:bg-buttonFocus">
+              1v1
+            </button>
+            <button className="bg-button text-white font-bold py-2 px-4 rounded hover:bg-buttonFocus">
+              Single
+            </button>
+            <button className="bg-button text-white font-bold py-2 px-4 rounded hover:bg-buttonFocus">
+              Team
+            </button>
+          </div>
+          <div>
+            <img src="/images/crossword.png" height={400} width={400} alt="crossword" />
+          </div>
+        </div>
+        </div>
     </>
   );
 }
