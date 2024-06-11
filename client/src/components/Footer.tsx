@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-primaryBackground text-white py-6 flex flex-col md:flex-row justify-between items-center px-4 md:px-8">
+    <footer className="bg-primaryBackground text-white py-6 flex flex-col md:flex-row justify-between items-center px-4 w-full md:px-8">
       <div className="text-center md:text-left">
       <div className="text-white font-bold md:text-4xl mb-1">CrossClash</div>
         <div className="mt-4">

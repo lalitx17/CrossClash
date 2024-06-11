@@ -12,9 +12,9 @@ export default function App() {
 
   return (
     <><div>
-        <div className="flex flex-row flex-wrap justify-around py-[10em] bg-secondaryBackground">
+        <div className="flex flex-row flex-wrap justify-around py-[10em] bg-white">
           <div className="flex flex-col justify-center gap-y-5">
-            <div className="text-white font-bold md:text-4xl mb-1">Battle of the words.</div>
+            <div className="text-black font-bold md:text-4xl mb-1">Battle of the words.</div>
             <button onClick={onevsoneHandler} className="bg-button text-white font-bold py-2 px-4 rounded hover:bg-buttonFocus">
               1v1
             </button>
