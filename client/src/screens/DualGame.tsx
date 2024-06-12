@@ -7,8 +7,10 @@ import {
     CrosswordGrid,
 } from "@jaredreisinger/react-crossword";
 
-export const INIT_GAME = "init_game";
-export const GAME_OVER = "game_over";
+import { INIT_GAME, GAME_OVER, DUAL_PLAYER  } from "../assets/messages.ts"; 
+
+
+
 
 const data = {
     across: {},
@@ -89,6 +91,7 @@ export const DualGame = () => {
                             socket.send(
                                 JSON.stringify({
                                     type: INIT_GAME,
+                                    mode: DUAL_PLAYER
                                 })
                             );
                         }}

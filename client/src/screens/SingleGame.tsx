@@ -7,8 +7,7 @@ import {
     CrosswordGrid,
 } from "@jaredreisinger/react-crossword";
 
-export const INIT_GAME = "init_game";
-export const GAME_OVER = "game_over";
+import { INIT_GAME, GAME_OVER, SINGLE_PLAYER } from "../assets/messages.ts"; 
 
 const data = {
     across: {},
@@ -89,6 +88,7 @@ export const SingleGame = () => {
                             socket.send(
                                 JSON.stringify({
                                     type: INIT_GAME,
+                                    mode: SINGLE_PLAYER,
                                 })
                             );
                         }}
