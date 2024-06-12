@@ -1,7 +1,8 @@
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { Game } from './screens/Game.tsx'
+import { DualGame } from './screens/DualGame.tsx'
+import { SingleGame } from './screens/SingleGame.tsx'
 import './App.css'
 import Layout from './Layout.tsx'
 
@@ -16,9 +17,13 @@ const router = createBrowserRouter([
         element: <App />,
       },
       {
-        path: '/game',
-        element: <Game />,
+        path: '/dualgame',
+        element: <DualGame />,
       },
+      {
+        path: '/singlegame',
+        element: <SingleGame />
+      }
     ],
   },
 ]);

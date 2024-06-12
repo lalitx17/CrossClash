@@ -15,7 +15,7 @@ const data = {
     down: {},
 };
 
-export const Game = () => {
+export const DualGame = () => {
     const socket = useSocket();
     const [started, setStarted] = useState(false);
     const [crosswordData, setcrosswordData] = useState(data);
