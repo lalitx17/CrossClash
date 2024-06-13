@@ -99,7 +99,7 @@ export const SingleGame = () => {
             )}
             {started && (
                 <div className="flex flex-row justify-between mx-auto w-[95%] gap-x-10">
-                    <CrosswordProvider data={crosswordData}>
+                    <CrosswordProvider data={crosswordData} useStorage={false} >
                         <div className="overflow-y-scroll h-[400px] my-auto ">
                             <DirectionClues direction="across" />
                         </div>

@@ -10,6 +10,17 @@ import {
 import { INIT_GAME, GAME_OVER, DUAL_PLAYER  } from "../assets/messages.ts"; 
 
 
+const clearGameState = () => {
+    localStorage.removeItem("crosswordData");
+    localStorage.removeItem("time");
+    localStorage.removeItem("isTimeout");
+};
+
+
+const handleBeforeUnload = () => {
+    clearGameState();
+};
+window.addEventListener('beforeunload', handleBeforeUnload);
 
 
 const data = {
@@ -37,6 +48,9 @@ export const DualGame = () => {
                         console.log(message.payload.data);
                         setcrosswordData(message.payload.data);
                         setStarted(true);
+                        setIsTimeout(false);
+                        setTime(0);
+                        clearGameState();
                     } else {
                         console.error("Invalid message payload");
                     }
@@ -48,7 +62,9 @@ export const DualGame = () => {
         };
 
         return () => {
+            clearGameState();
             socket.close();
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, [socket]);
 
