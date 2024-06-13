@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { useSocket } from "../hooks/useSocket";
-import { Button } from "../components/Button";
+import { useEffect, useState, useRef } from "react";
+import { useSocket } from "../hooks/useSocket.ts";
+import { Button } from "../components/Button.tsx";
 import {
     CrosswordProvider,
     DirectionClues,
     CrosswordGrid,
 } from "@jaredreisinger/react-crossword";
+import { CrosswordProviderImperative } from "@jaredreisinger/react-crossword";
 
 import { INIT_GAME, GAME_OVER, DUAL_PLAYER  } from "../assets/messages.ts"; 
 
@@ -21,6 +22,7 @@ export const DualGame = () => {
     const [crosswordData, setcrosswordData] = useState(data);
     const [time, setTime] = useState<number>(0);
     const [isTimeout, setIsTimeout] = useState<boolean>(false);
+    const crosswordProviderRef = useRef<CrosswordProviderImperative | null>(null);
 
     useEffect(() => {
         if (!socket) {
@@ -102,11 +104,11 @@ export const DualGame = () => {
             )}
             {started && (
                 <div className="flex flex-row justify-between mx-auto w-[95%] gap-x-10">
-                    <CrosswordProvider data={crosswordData}>
+                    <CrosswordProvider data={crosswordData} useStorage={false} ref={crosswordProviderRef}>
                         <div className="overflow-y-scroll h-[400px] my-auto ">
                             <DirectionClues direction="across" />
                         </div>
-                        <div className="w-[35em]">
+                        <div className="w-[35em] flex flex-col gap-y-5">
                             <div className="mb-4 text-center">
                                 {isTimeout ? (
                                     <p className="text-lg text-red-600 font-semibold">Time's up!</p>
@@ -118,6 +120,14 @@ export const DualGame = () => {
                                 )}
                             </div>
                             <CrosswordGrid />
+
+                            <button
+                                onClick={() => {crosswordProviderRef.current?.reset()}}
+                                className="px-6 py-2 mx-auto text-xl bg-button hover:bg-buttonFocus text-white font-bold rounded"
+                            >
+                                Clear
+                            </button>
+                            
                         </div>
                         <div className="overflow-y-scroll h-[400px] my-auto">
                             <DirectionClues direction="down" />
