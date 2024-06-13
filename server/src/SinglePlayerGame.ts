@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { GAME_OVER, INIT_GAME } from "./messages";
-import { crosswordData } from "./crosswordData";
+import { crosswordData, crosswordData2 } from "./crosswordData";
 
 export class SinglePlayerGame {
     public player1: WebSocket;
@@ -10,7 +10,7 @@ export class SinglePlayerGame {
         this.player1.send(JSON.stringify({
             type: INIT_GAME,
             payload: {
-                data: crosswordData
+                data: crosswordData2
             }
         }));
     }
