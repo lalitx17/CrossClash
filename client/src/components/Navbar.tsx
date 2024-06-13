@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-10 flex justify-center items-center">
-          <div className="bg-white rounded-lg p-6 relative">
+          <div className="bg-primaryBackground rounded-lg p-8 relative">
             <button
               onClick={closeMenu}
               className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 focus:outline-none"
@@ -69,13 +69,13 @@ const Navbar: React.FC = () => {
               </svg>
             </button>
             <div className="flex flex-col space-y-4 mt-5">
-              <a href="#" className="text-gray-800 hover:text-gray-600">
+              <a href="#" className="text-white font-semibold hover:text-gray-600">
                 Home
               </a>
-              <a href="#" className="text-gray-800 hover:text-gray-600">
+              <a href="#" className="text-white font-semibold hover:text-gray-600">
                 About
               </a>
-              <a href="#" className="text-gray-800 hover:text-gray-600">
+              <a href="#" className="text-white font-semibold hover:text-gray-600">
                 Contact
               </a>
             </div>
