@@ -7,9 +7,7 @@ import {
   CrosswordGrid,
 } from "@jaredreisinger/react-crossword";
 import { formatTime } from "../assets/formatTime.ts";
-
 import { INIT_GAME, GAME_OVER, SINGLE_PLAYER } from "../assets/messages.ts";
-
 import { CrosswordProviderImperative } from "@jaredreisinger/react-crossword";
 
 const data = {
@@ -23,6 +21,8 @@ export const SingleGame = () => {
   const [crosswordData, setcrosswordData] = useState(data);
   const [time, setTime] = useState<number>(0);
   const [isTimeout, setIsTimeout] = useState<boolean>(false);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [dialogBoxAppears, setDialogBoxAppears] = useState<boolean>(false);
   const crosswordProviderRef = useRef<CrosswordProviderImperative | null>(null);
 
   useEffect(() => {
@@ -61,6 +61,7 @@ export const SingleGame = () => {
 
       if (time === 10) {
         setIsTimeout(true);
+        setDialogBoxAppears(true);
         clearInterval(interval);
       }
 
@@ -70,9 +71,8 @@ export const SingleGame = () => {
     }
   }, [time, started]);
 
-
   useEffect(() => {
-    if (isTimeout) {
+    if (dialogBoxAppears) {
       document.body.classList.add("body-no-scroll");
     } else {
       document.body.classList.remove("body-no-scroll");
@@ -81,16 +81,23 @@ export const SingleGame = () => {
     return () => {
       document.body.classList.remove("body-no-scroll");
     };
-  }, [isTimeout]);
+  }, [dialogBoxAppears]);
 
+  const crosswordCompleted = (correct: boolean) => {
+    if (!dialogBoxAppears){
+    if (correct) {
+      setIsCompleted(true);
+      setDialogBoxAppears(true);
+    }
+  }
+  };
 
-
-  const dialogBox = () => (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40  backdrop-blur z-50">
+  const dialogBox = (title: string, message: string, onClose: () => void) => (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur z-50">
       <div className="bg-white p-6 rounded shadow-lg text-center relative">
         <button
           className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-          onClick={() => setIsTimeout(false)}
+          onClick={onClose}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -107,29 +114,31 @@ export const SingleGame = () => {
             />
           </svg>
         </button>
-        <h2 className="text-2xl font-bold mb-4 text-red-500">Time Out!</h2>
+        <h2 className="text-2xl font-bold mb-4">{title}</h2>
+        <p className="mb-4">{message}</p>
         <div className="flex flex-row justify-between items-center gap-x-3">
-        <Button
-          onClick={() => {
-            setStarted(false);
-            setIsTimeout(false);
-            setTime(0);
-          }}
-        >
-          Home
-        </Button>
+          <Button
+            onClick={() => {
+              setStarted(false);
+              setIsTimeout(false);
+              setIsCompleted(false);
+              setTime(0);
+            }}
+          >
+            Home
+          </Button>
 
-        <Button
-          onClick={() => {
-            setStarted(false);
-            setIsTimeout(false);
-            setTime(0);
-          }}
-        >
-          Play Again
-        </Button>
+          <Button
+            onClick={() => {
+              setStarted(false);
+              setIsTimeout(false);
+              setIsCompleted(false);
+              setTime(0);
+            }}
+          >
+            Play Again
+          </Button>
         </div>
-        
       </div>
     </div>
   );
@@ -160,6 +169,7 @@ export const SingleGame = () => {
             data={crosswordData}
             useStorage={false}
             ref={crosswordProviderRef}
+            onCrosswordComplete={crosswordCompleted}
           >
             <div className="overflow-y-scroll h-[400px] my-auto ">
               <DirectionClues direction="across" />
@@ -194,7 +204,8 @@ export const SingleGame = () => {
           </CrosswordProvider>
         </div>
       )}
-      {isTimeout && dialogBox()}
+      {dialogBoxAppears && dialogBox("Time Out!", "You ran out of time!", () => setDialogBoxAppears(false))}
+      {dialogBoxAppears && dialogBox("Congratulations!", "You completed the crossword!", () => setDialogBoxAppears(false))}
     </div>
   );
 };
