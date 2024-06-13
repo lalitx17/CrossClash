@@ -6,6 +6,7 @@ import {
   DirectionClues,
   CrosswordGrid,
 } from "@jaredreisinger/react-crossword";
+import { formatTime } from "../assets/formatTime.ts";
 
 import { INIT_GAME, GAME_OVER, SINGLE_PLAYER } from "../assets/messages.ts";
 
@@ -58,7 +59,7 @@ export const SingleGame = () => {
         setTime((prevTime) => prevTime + 1);
       }, 1000);
 
-      if (time === 300) {
+      if (time === 10) {
         setIsTimeout(true);
         clearInterval(interval);
       }
@@ -69,13 +70,69 @@ export const SingleGame = () => {
     }
   }, [time, started]);
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60)
-      .toString()
-      .padStart(2, "0");
-    const seconds = (time % 60).toString().padStart(2, "0");
-    return `${minutes}:${seconds}`;
-  };
+
+  useEffect(() => {
+    if (isTimeout) {
+      document.body.classList.add("body-no-scroll");
+    } else {
+      document.body.classList.remove("body-no-scroll");
+    }
+
+    return () => {
+      document.body.classList.remove("body-no-scroll");
+    };
+  }, [isTimeout]);
+
+
+
+  const dialogBox = () => (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40  backdrop-blur z-50">
+      <div className="bg-white p-6 rounded shadow-lg text-center relative">
+        <button
+          className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+          onClick={() => setIsTimeout(false)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <h2 className="text-2xl font-bold mb-4 text-red-500">Time Out!</h2>
+        <div className="flex flex-row justify-between items-center gap-x-3">
+        <Button
+          onClick={() => {
+            setStarted(false);
+            setIsTimeout(false);
+            setTime(0);
+          }}
+        >
+          Home
+        </Button>
+
+        <Button
+          onClick={() => {
+            setStarted(false);
+            setIsTimeout(false);
+            setTime(0);
+          }}
+        >
+          Play Again
+        </Button>
+        </div>
+        
+      </div>
+    </div>
+  );
 
   if (!socket) return <div>Connecting...</div>;
 
@@ -108,8 +165,7 @@ export const SingleGame = () => {
               <DirectionClues direction="across" />
             </div>
             <div className="w-[35em] flex flex-col gap-y-5">
-              <div className="mb-4 text-center">
-              </div>
+              <div className="mb-4 text-center"></div>
               <div className="border-x-4 border-b-4 border-t-[26px] px-4 pb-4 pt-8 border-primaryBackground rounded-lg bg-primaryBackground relative">
                 <CrosswordGrid />
                 <div className="absolute top-0 right-4 flex items-center text-white px-2 py-1">
@@ -123,7 +179,6 @@ export const SingleGame = () => {
                   {formatTime(time)}
                 </div>
               </div>
-
               <button
                 onClick={() => {
                   crosswordProviderRef.current?.reset();
@@ -137,9 +192,9 @@ export const SingleGame = () => {
               <DirectionClues direction="down" />
             </div>
           </CrosswordProvider>
-          {/* <Crossword data={crosswordData} /> */}
         </div>
       )}
+      {isTimeout && dialogBox()}
     </div>
   );
 };
