@@ -1,11 +1,19 @@
 import { Button } from "../components/Button";
 
+interface DialogBoxProps {
+  title: string;
+  message: string;
+  onClose: () => void;
+  onGoHome: () => void;
+  onPlayAgain: () => void;
+  visible: boolean;
+}
 
+export const DialogBox = ({ title, message, onClose, onGoHome, onPlayAgain, visible }: DialogBoxProps) => {
 
-export const DialogBox = (title: string, message: string, onClose: () => void) => {
-    
-    
-    return (
+  if (!visible) return null;
+
+  return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur z-50">
       <div className="bg-white p-6 rounded shadow-lg text-center relative">
         <button
@@ -30,18 +38,10 @@ export const DialogBox = (title: string, message: string, onClose: () => void) =
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
         <p className="mb-4">{message}</p>
         <div className="flex flex-row justify-between items-center gap-x-3">
-          <Button
-            onClick={() => {}}
-          >
-            Home
-          </Button>
-
-          <Button
-            onClick={() => {}}
-          >
-            Play Again
-          </Button>
+          <Button onClick={onGoHome}>Home</Button>
+          <Button onClick={onPlayAgain}>Play Again</Button>
         </div>
       </div>
     </div>
-  )};
+  );
+};

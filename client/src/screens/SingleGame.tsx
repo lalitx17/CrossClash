@@ -10,6 +10,7 @@ import { formatTime } from "../assets/formatTime.ts";
 import { INIT_GAME, GAME_OVER, SINGLE_PLAYER } from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@jaredreisinger/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
+import { useNavigate } from "react-router-dom";
 
 const data = {
   across: {},
@@ -24,7 +25,11 @@ export const SingleGame = () => {
   const [isTimeout, setIsTimeout] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [dialogBoxAppears, setDialogBoxAppears] = useState<boolean>(false);
+  const [isDialogClosedManually, setIsDialogClosedManually] = useState<boolean>(false); // New state
   const crosswordProviderRef = useRef<CrosswordProviderImperative | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null); // Updated type
+
+  const redirect = useNavigate();
 
   useEffect(() => {
     if (!socket) {
@@ -56,23 +61,29 @@ export const SingleGame = () => {
 
   useEffect(() => {
     if (started) {
-      const interval = setInterval(() => {
+      timerRef.current = setInterval(() => {
         setTime((prevTime) => prevTime + 1);
       }, 1000);
 
-      if (time === 10) {
-        setIsTimeout(true);
-        setStarted(false);
-        setDialogBoxAppears(true);
-        clearInterval(interval);
-      }
-
       return () => {
-        clearInterval(interval);
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
       };
     }
-  }, [time, started]);
+  }, [started]);
 
+  useEffect(() => {
+    if (time === 10) {
+      setIsTimeout(true);
+      setDialogBoxAppears(true);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+  }, [time]);
+
+  //no scroll when the dialog box appears
   useEffect(() => {
     if (dialogBoxAppears) {
       document.body.classList.add("body-no-scroll");
@@ -86,15 +97,21 @@ export const SingleGame = () => {
   }, [dialogBoxAppears]);
 
   const crosswordCompleted = (correct: boolean) => {
-    if (!dialogBoxAppears){
-    if (correct) {
-      setIsCompleted(true);
-      setDialogBoxAppears(true);
-      setStarted(false);
+    if (!dialogBoxAppears && !isDialogClosedManually) {
+      if (correct) {
+        setIsCompleted(true);
+        setDialogBoxAppears(true);
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      }
     }
-  }
   };
 
+  const handleDialogClose = () => {
+    setDialogBoxAppears(false);
+    setIsDialogClosedManually(true);
+  };
 
   if (!socket) return <div>Connecting...</div>;
 
@@ -110,6 +127,10 @@ export const SingleGame = () => {
                   mode: SINGLE_PLAYER,
                 })
               );
+              setIsTimeout(false);
+              setIsCompleted(false);
+              setTime(0);
+              setIsDialogClosedManually(false); 
             }}
           >
             Play
@@ -157,8 +178,21 @@ export const SingleGame = () => {
           </CrosswordProvider>
         </div>
       )}
-      {isTimeout && dialogBoxAppears && DialogBox("Time Out!", "You ran out of time!", () => setDialogBoxAppears(false))}
-      {isCompleted && dialogBoxAppears && DialogBox("Congratulations!", "You completed the crossword!", () => setDialogBoxAppears(false))}
+      <DialogBox
+        title={isTimeout ? "Time Out!" : isCompleted ? "Congratulations!" : ""}
+        message={
+          isTimeout ? "You ran out of time!" : isCompleted ? "You completed the crossword!" : ""
+        }
+        onClose={handleDialogClose}
+        onGoHome={() => redirect("/")}
+        onPlayAgain={() => {
+          setStarted(false);
+          setTime(0);
+          setDialogBoxAppears(false);
+          setIsDialogClosedManually(false);
+        }}
+        visible={dialogBoxAppears}
+      />
     </div>
   );
 };
