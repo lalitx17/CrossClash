@@ -31,6 +31,8 @@ export const SingleGame = () => {
 
   const redirect = useNavigate();
 
+  
+
   useEffect(() => {
     if (!socket) {
       return;
@@ -108,6 +110,14 @@ export const SingleGame = () => {
     }
   };
 
+
+  if (isDialogClosedManually) {
+    const inputs = document.querySelectorAll<HTMLInputElement>(`input[aria-label="crossword-input"]`);
+    inputs.forEach(input => {
+      input.disabled = true;
+    });
+  }
+
   const handleDialogClose = () => {
     setDialogBoxAppears(false);
     setIsDialogClosedManually(true);
@@ -165,7 +175,9 @@ export const SingleGame = () => {
               </div>
               <button
                 onClick={() => {
+                  if (!isDialogClosedManually){
                   crosswordProviderRef.current?.reset();
+                  }
                 }}
                 className="px-6 py-2 mx-auto text-xl bg-button hover:bg-buttonFocus text-white font-bold rounded"
               >
