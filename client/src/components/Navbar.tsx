@@ -69,7 +69,7 @@ const Navbar: React.FC = () => {
               </svg>
             </button>
             <div className="flex flex-col space-y-4 mt-5">
-              <a href="#" className="text-white font-semibold hover:text-gray-600">
+              <a href="/" className="text-white font-semibold hover:text-gray-600">
                 Home
               </a>
               <a href="#" className="text-white font-semibold hover:text-gray-600">

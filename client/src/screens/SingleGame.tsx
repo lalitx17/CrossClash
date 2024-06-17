@@ -1,16 +1,18 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { useSocket } from "../hooks/useSocket";
 import { Button } from "../components/Button";
 import {
   CrosswordProvider,
   DirectionClues,
   CrosswordGrid,
+  CrosswordContext
 } from "@jaredreisinger/react-crossword";
 import { formatTime } from "../assets/formatTime.ts";
 import { INIT_GAME, GAME_OVER, SINGLE_PLAYER } from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@jaredreisinger/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
 import { useNavigate } from "react-router-dom";
+
 
 const data = {
   across: {},
@@ -76,7 +78,7 @@ export const SingleGame = () => {
   }, [started]);
 
   useEffect(() => {
-    if (time === 10) {
+    if (time === 100000) {
       setIsTimeout(true);
       setDialogBoxAppears(true);
       if (timerRef.current) {
@@ -110,7 +112,6 @@ export const SingleGame = () => {
     }
   };
 
-
   if (isDialogClosedManually) {
     const inputs = document.querySelectorAll<HTMLInputElement>(`input[aria-label="crossword-input"]`);
     inputs.forEach(input => {
@@ -122,6 +123,10 @@ export const SingleGame = () => {
     setDialogBoxAppears(false);
     setIsDialogClosedManually(true);
   };
+
+  // const cellChange = (row: number, col: number, char: string) =>{
+  //     console.log(row, col, char)
+  // }
 
   if (!socket) return <div>Connecting...</div>;
 
@@ -154,12 +159,12 @@ export const SingleGame = () => {
             useStorage={false}
             ref={crosswordProviderRef}
             onCrosswordComplete={crosswordCompleted}
+            //  
           >
-            <div className="overflow-y-scroll h-[400px] my-auto ">
+            <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">
               <DirectionClues direction="across" />
             </div>
-            <div className="w-[35em] flex flex-col gap-y-5">
-              <div className="mb-4 text-center"></div>
+            <div className="w-[35em] flex flex-col gap-y-5">  
               <div className="border-x-4 border-b-4 border-t-[26px] px-4 pb-4 pt-8 border-primaryBackground rounded-lg bg-primaryBackground relative">
                 <CrosswordGrid />
                 <div className="absolute top-0 right-4 flex items-center text-white px-2 py-1">
@@ -184,7 +189,7 @@ export const SingleGame = () => {
                 Clear
               </button>
             </div>
-            <div className="overflow-y-scroll h-[400px] my-auto">
+            <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">
               <DirectionClues direction="down" />
             </div>
           </CrosswordProvider>
