@@ -1,11 +1,10 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef} from "react";
 import { useSocket } from "../hooks/useSocket";
 import { Button } from "../components/Button";
 import {
   CrosswordProvider,
   DirectionClues,
   CrosswordGrid,
-  CrosswordContext
 } from "@jaredreisinger/react-crossword";
 import { formatTime } from "../assets/formatTime.ts";
 import { INIT_GAME, GAME_OVER, SINGLE_PLAYER } from "../assets/messages.ts";
