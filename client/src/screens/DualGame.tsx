@@ -5,10 +5,10 @@ import {
     CrosswordProvider,
     DirectionClues,
     CrosswordGrid,
-} from "@jaredreisinger/react-crossword";
+} from "@lit17/react-crossword";
 import { formatTime } from "../assets/formatTime.ts";
 import { INIT_GAME, GAME_OVER, DUAL_PLAYER } from "../assets/messages.ts";
-import { CrosswordProviderImperative } from "@jaredreisinger/react-crossword";
+import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
 import { useNavigate } from "react-router-dom";
 

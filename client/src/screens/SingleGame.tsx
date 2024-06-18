@@ -5,23 +5,52 @@ import {
   CrosswordProvider,
   DirectionClues,
   CrosswordGrid,
-} from "@jaredreisinger/react-crossword";
+} from "@lit17/react-crossword";
 import { formatTime } from "../assets/formatTime.ts";
 import { INIT_GAME, GAME_OVER, SINGLE_PLAYER } from "../assets/messages.ts";
-import { CrosswordProviderImperative } from "@jaredreisinger/react-crossword";
+import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
 import { useNavigate } from "react-router-dom";
 
+import { Direction } from "@lit17/react-crossword/dist/types";
+
+
+interface CrosswordClue {
+  clue: string;
+  answer: string;
+  row: number;
+  col: number;
+}
+
+interface CrosswordData {
+  across: { [key: string]: CrosswordClue };
+  down: { [key: string]: CrosswordClue };
+}
 
 const data = {
-  across: {},
-  down: {},
+  across: {
+    1: {
+      clue: 'one plus one',
+      answer: 'TWO',
+      row: 0,
+      col: 0,
+    },
+  },
+  down: {
+    2: {
+      clue: 'three minus two',
+      answer: 'ONE',
+      row: 0,
+      col: 2,
+    },
+  },
 };
+
 
 export const SingleGame = () => {
   const socket = useSocket();
   const [started, setStarted] = useState(false);
-  const [crosswordData, setcrosswordData] = useState(data);
+  const [crosswordData, setcrosswordData] = useState<CrosswordData>(data);
   const [time, setTime] = useState<number>(0);
   const [isTimeout, setIsTimeout] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
@@ -111,6 +140,24 @@ export const SingleGame = () => {
     }
   };
 
+  const cellChange = (direction: Direction, number: string | undefined, row: number, col: number) => {
+    const directionData = crosswordData[direction];
+  
+    if (number) {
+      const clueObj = directionData[number];
+      if (clueObj && clueObj.row === row && clueObj.col === col) {
+        return clueObj.clue;
+      }
+    } else {
+      const clueObj = Object.values(directionData).find(obj => obj.row === row && obj.col === col);
+      if (clueObj) {
+        return clueObj.clue;
+      }
+    }
+    
+    return '';
+  }
+
   if (isDialogClosedManually) {
     const inputs = document.querySelectorAll<HTMLInputElement>(`input[aria-label="crossword-input"]`);
     inputs.forEach(input => {
@@ -158,6 +205,7 @@ export const SingleGame = () => {
             useStorage={false}
             ref={crosswordProviderRef}
             onCrosswordComplete={crosswordCompleted}
+            onCellSelected={cellChange}
             //  
           >
             <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">
