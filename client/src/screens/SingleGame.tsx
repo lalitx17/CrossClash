@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef} from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSocket } from "../hooks/useSocket";
 import { Button } from "../components/Button";
 import {
@@ -55,16 +55,27 @@ export const SingleGame = () => {
   const [isTimeout, setIsTimeout] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [dialogBoxAppears, setDialogBoxAppears] = useState<boolean>(false);
-  const [isDialogClosedManually, setIsDialogClosedManually] = useState<boolean>(false); // New state
+  const [isDialogClosedManually, setIsDialogClosedManually] = useState<boolean>(false);
+
+
   const crosswordProviderRef = useRef<CrosswordProviderImperative | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null); // Updated type
+
+
   const [currentClue, setCurrentClue] = useState<string>("");
   const [direction, setDirection] = useState<string>("");
   const [currentNumber, setCurrentNumber] = useState<string | undefined>("");
+  const [currentRow, setCurrentRow] = useState<number>(-1);
+  const [currentCol, setCurrentCol] = useState<number>(-1);
+
+
+  const [answerCount, setAnswerCount] = useState<number>(0);
+  const [answer, setAnswer] = useState<string>("");
+  const [submittedAnswer, setSubmittedAnswer] = useState<string>("");
 
   const redirect = useNavigate();
 
-  
+
 
   useEffect(() => {
     if (!socket) {
@@ -147,17 +158,22 @@ export const SingleGame = () => {
     setDirection(direction);
     setCurrentNumber(number);
     const directionData = crosswordData[direction];
-  
+
     if (number) {
       const clueObj = directionData[number];
-        setCurrentClue(clueObj.clue);
-     }
-     console.log(direction, number, row, col);
+      setCurrentClue(clueObj.clue);
+      setAnswerCount(clueObj.answer.length);
+      setCurrentRow(clueObj.row);
+      setCurrentCol(clueObj.col);
+    }
+    console.log(direction, number, row, col);
   }
 
   useEffect(() => {
     console.log(currentClue);
   }, [currentClue])
+
+
 
   if (isDialogClosedManually) {
     const inputs = document.querySelectorAll<HTMLInputElement>(`input[aria-label="crossword-input"]`);
@@ -171,9 +187,32 @@ export const SingleGame = () => {
     setIsDialogClosedManually(true);
   };
 
-  // const cellChange = (row: number, col: number, char: string) =>{
-  //     console.log(row, col, char)
-  // }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase();
+    if (value.length <= answerCount) {
+      setAnswer(value);
+    }
+  };
+
+  const handleSubmit = () => {
+    setSubmittedAnswer(answer);
+    setAnswer("");
+  };
+
+  useEffect(() => {
+    if (submittedAnswer) {
+      if (direction === 'across') {
+        for (let i = currentCol; i < currentCol + answerCount; i++) {
+          crosswordProviderRef.current?.setGuess(currentRow, i, submittedAnswer[i - currentCol]);
+        }
+      } else if (direction === 'down') {
+        for (let i = currentRow; i < currentRow + answerCount; i++) {
+          crosswordProviderRef.current?.setGuess(i, currentCol, submittedAnswer[i - currentRow]);
+        }
+      }
+      setSubmittedAnswer("");
+    }
+  }, [submittedAnswer, direction, currentRow, currentCol, answerCount]);
 
   if (!socket) return <div>Connecting...</div>;
 
@@ -192,7 +231,7 @@ export const SingleGame = () => {
               setIsTimeout(false);
               setIsCompleted(false);
               setTime(0);
-              setIsDialogClosedManually(false); 
+              setIsDialogClosedManually(false);
             }}
           >
             Play
@@ -207,12 +246,12 @@ export const SingleGame = () => {
             ref={crosswordProviderRef}
             onCrosswordComplete={crosswordCompleted}
             onCellSelected={cellChange}
-            //  
+          //  
           >
             <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">
               <DirectionClues direction="across" />
             </div>
-            <div className="w-[35em] flex flex-col gap-y-5">  
+            <div className="w-[35em] flex flex-col gap-y-5">
               <div className="border-x-4 border-b-4 border-t-[26px] px-4 pb-4 pt-8 border-primaryBackground rounded-lg bg-primaryBackground relative">
                 <CrosswordGrid />
                 <div className="absolute top-0 right-4 flex items-center text-white px-2 py-1">
@@ -226,21 +265,45 @@ export const SingleGame = () => {
                   {formatTime(time)}
                 </div>
               </div>
-              <div className="bg-primaryBackground text-white text-center rounded-lg">
-                <div className="font-semibold">Clues</div>
-                <div>{direction.toUpperCase()}</div>
-                <div>{currentNumber}. {currentClue}</div>
+              <div className="bg-primaryBackground text-white text-center rounded-lg p-4 shadow-lg">
+                <div className="font-semibold text-xl mb-2">Clues</div>
+                <div className="uppercase text-sm mb-4">{direction}</div>
+                <div className="mt-2 text-base">
+                  {currentNumber && currentClue ? (
+                    <div className="flex flex-col items-center">
+                      <span className="font-bold text-lg">{currentNumber}.</span>
+                      <span className="mt-1">{currentClue} ({answerCount})</span>
+                      <input
+                        type="text"
+                        value={answer}
+                        onChange={handleInputChange}
+                        maxLength={answerCount}
+                        className="mt-2 p-2 rounded text-black text-center"
+                      />
+                      <button
+                        onClick={handleSubmit}
+                        disabled={answer.length !== answerCount}
+                        className={`mt-2 px-4 py-2 bg-button hover:bg-buttonFocus text-white font-bold rounded ${answer.length !== answerCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="italic text-sm text-gray-400">Select a clue</div>
+                  )}
+                </div>
               </div>
               <button
                 onClick={() => {
-                  if (!isDialogClosedManually){
-                  crosswordProviderRef.current?.reset();
+                  if (!isDialogClosedManually) {
+                    crosswordProviderRef.current?.reset();
                   }
                 }}
                 className="px-6 py-2 mx-auto text-xl bg-button hover:bg-buttonFocus text-white font-bold rounded"
               >
                 Clear
               </button>
+
             </div>
             <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">
               <DirectionClues direction="down" />
