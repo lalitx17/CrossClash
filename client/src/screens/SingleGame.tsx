@@ -154,6 +154,14 @@ export const SingleGame = () => {
     }
   };
 
+  const clueAnsweredCorrectly = (direction: Direction, number: string, answer: string) => {
+    console.log("Correct Answer Yay", direction, number, answer);
+  }
+
+  const clueAnsweredInCorrectly = (direction: Direction, number: string, answer: string) => {
+    console.log("Correct Incorrect noo", direction, number, answer);
+  }
+
   const cellChange = (direction: Direction, number: string | undefined, row: number, col: number) => {
     setDirection(direction);
     setCurrentNumber(number);
@@ -246,6 +254,8 @@ export const SingleGame = () => {
             ref={crosswordProviderRef}
             onCrosswordComplete={crosswordCompleted}
             onCellSelected={cellChange}
+            onAnswerCorrect={clueAnsweredCorrectly}
+            onAnswerIncorrect={clueAnsweredInCorrectly}
           //  
           >
             <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">

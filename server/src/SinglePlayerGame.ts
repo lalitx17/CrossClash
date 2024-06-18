@@ -10,7 +10,7 @@ export class SinglePlayerGame {
         this.player1.send(JSON.stringify({
             type: INIT_GAME,
             payload: {
-                data: crosswordData
+                data: crosswordData2
             }
         }));
     }
