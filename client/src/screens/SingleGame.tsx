@@ -58,6 +58,9 @@ export const SingleGame = () => {
   const [isDialogClosedManually, setIsDialogClosedManually] = useState<boolean>(false); // New state
   const crosswordProviderRef = useRef<CrosswordProviderImperative | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null); // Updated type
+  const [currentClue, setCurrentClue] = useState<string>("");
+  const [direction, setDirection] = useState<string>("");
+  const [currentNumber, setCurrentNumber] = useState<string | undefined>("");
 
   const redirect = useNavigate();
 
@@ -141,22 +144,20 @@ export const SingleGame = () => {
   };
 
   const cellChange = (direction: Direction, number: string | undefined, row: number, col: number) => {
+    setDirection(direction);
+    setCurrentNumber(number);
     const directionData = crosswordData[direction];
   
     if (number) {
       const clueObj = directionData[number];
-      if (clueObj && clueObj.row === row && clueObj.col === col) {
-        return clueObj.clue;
-      }
-    } else {
-      const clueObj = Object.values(directionData).find(obj => obj.row === row && obj.col === col);
-      if (clueObj) {
-        return clueObj.clue;
-      }
-    }
-    
-    return '';
+        setCurrentClue(clueObj.clue);
+     }
+     console.log(direction, number, row, col);
   }
+
+  useEffect(() => {
+    console.log(currentClue);
+  }, [currentClue])
 
   if (isDialogClosedManually) {
     const inputs = document.querySelectorAll<HTMLInputElement>(`input[aria-label="crossword-input"]`);
@@ -224,6 +225,11 @@ export const SingleGame = () => {
                   />
                   {formatTime(time)}
                 </div>
+              </div>
+              <div className="bg-primaryBackground text-white text-center rounded-lg">
+                <div className="font-semibold">Clues</div>
+                <div>{direction.toUpperCase()}</div>
+                <div>{currentNumber}. {currentClue}</div>
               </div>
               <button
                 onClick={() => {
