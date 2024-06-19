@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { DUAL_PLAYER, INIT_GAME, SINGLE_PLAYER } from "./messages";
+import { DUAL_PLAYER, INIT_GAME, SINGLE_PLAYER, GAME_COMPLETED } from "./messages";
 import { DualPlayerGame } from "./DualPlayerGame";
 import { SinglePlayerGame } from "./SinglePlayerGame";
 
@@ -48,8 +48,18 @@ export class GameManager {
             this.pendingUser = socket;
             console.log("Waiting for another player");
           }
+        }else if (message.type === GAME_COMPLETED){
+          const game = this.findGameBySocket(socket);
+          if (game) {
+            game.endGame(socket);
+          }
         }
       }
     });
+  }
+  private findGameBySocket(socket: WebSocket): DualPlayerGame | undefined {
+    return this.dualPlayerGames.find(game =>
+      game.player1 === socket || game.player2 === socket
+    );
   }
 }
