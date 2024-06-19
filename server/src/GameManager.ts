@@ -39,7 +39,7 @@ export class GameManager {
 
       } else if (message.mode === DUAL_PLAYER) {
         if (message.type === INIT_GAME) {
-          if (this.pendingUser) {
+          if (this.pendingUser && socket !== this.pendingUser) {
             const dualPlayerGame = new DualPlayerGame(this.pendingUser, socket);
             this.dualPlayerGames.push(dualPlayerGame);
             this.pendingUser = null;

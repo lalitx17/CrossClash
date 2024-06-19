@@ -112,8 +112,10 @@ export const DualGame = () => {
           setDialogBoxAppears(true);
           break;
         case SCORE_UPDATE:
-            console.log(message.increment);
-          setOpponentScore((prevScore) => prevScore + parseInt(message.increment));
+          console.log(message.increment);
+          setOpponentScore(
+            (prevScore) => prevScore + parseInt(message.increment)
+          );
       }
     };
 
@@ -339,9 +341,19 @@ export const DualGame = () => {
               <DirectionClues direction="across" />
             </div>
             <div className="w-[35em] flex flex-col gap-y-5">
-              <div>
-                <div>{`Score: ${playerScore}`}</div>
-                <div>{`Opponent Score: ${opponentScore}`}</div>
+              <div className="mx-auto text-center">
+                <div className="flex items-center mb-4 gap-x-2 justify-center">
+                  <div className="text-lg font-semibold text-center">
+                    Score:
+                  </div>
+                  <div className="text-lg mt-[2.5px]">{playerScore}</div>
+                </div>
+                <div className="flex items-center mb-4 gap-x-2 justify-center">
+                  <div className="text-lg font-semibold text-center">
+                    Opponent Score:
+                  </div>
+                  <div className="text-lg mt-[2.5px]">{opponentScore}</div>
+                </div>
               </div>
               <div className="border-x-4 border-b-4 border-t-[26px] px-4 pb-4 pt-8 border-primaryBackground rounded-lg bg-primaryBackground relative">
                 <CrosswordGrid
