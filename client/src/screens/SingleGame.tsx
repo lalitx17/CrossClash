@@ -13,6 +13,7 @@ import { DialogBox } from "./dialogBox.tsx";
 import { useNavigate } from "react-router-dom";
 
 import { Direction } from "@lit17/react-crossword/dist/types";
+import InputMask from "react-input-mask";
 
 
 interface CrosswordClue {
@@ -52,6 +53,8 @@ export const SingleGame = () => {
   const [started, setStarted] = useState(false);
   const [crosswordData, setcrosswordData] = useState<CrosswordData>(data);
   const [time, setTime] = useState<number>(0);
+  const [totalTime, setTotalTime] = useState<number>(0);
+  const [timeInput, setTimeInput] = useState<string>("00:00:00");
   const [isTimeout, setIsTimeout] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [dialogBoxAppears, setDialogBoxAppears] = useState<boolean>(false);
@@ -124,14 +127,16 @@ export const SingleGame = () => {
   }, [started]);
 
   useEffect(() => {
-    if (time === 100000) {
+    if (totalTime !== 0){
+    if (time === totalTime) {
       setIsTimeout(true);
       setDialogBoxAppears(true);
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     }
-  }, [time]);
+  }
+  }, [time, totalTime]);
 
   //no scroll when the dialog box appears
   useEffect(() => {
@@ -252,29 +257,55 @@ export const SingleGame = () => {
     }
   }, [submittedAnswer, direction, currentRow, currentCol, answerCount]);
 
+  const handleTimeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTimeInput(value);
+  };
+
+  const parseTimeInput = (input: string) => {
+    const parts = input.split(':');
+    if (parts.length === 3) {
+      const hours = parseInt(parts[0], 10);
+      const minutes = parseInt(parts[1], 10);
+      const seconds = parseInt(parts[2], 10);
+      return (hours * 3600) + (minutes * 60) + seconds;
+    }
+    return 0;
+  };
+
+  const handlePlayClick = () => {
+    const totalTime = parseTimeInput(timeInput);
+    setTotalTime(totalTime);
+    if (socket) {
+      socket.send(
+        JSON.stringify({
+          type: INIT_GAME,
+          mode: SINGLE_PLAYER,
+        })
+      );
+    }
+    setIsTimeout(false);
+    setIsCompleted(false);
+    setIsDialogClosedManually(false);
+    setStarted(true);
+  };
+
   if (!socket) return <div>Connecting...</div>;
 
   return (
     <div className="py-14">
       {!started && (
-        <div className="flex w-2/5 mx-auto">
-          <Button
-            onClick={() => {
-              socket.send(
-                JSON.stringify({
-                  type: INIT_GAME,
-                  mode: SINGLE_PLAYER,
-                })
-              );
-              setIsTimeout(false);
-              setIsCompleted(false);
-              setTime(0);
-              setIsDialogClosedManually(false);
-            }}
-          >
-            Play
-          </Button>
-        </div>
+        <div className="bg-primaryBackground flex flex-col md:w-2/5 w-[95%] mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+        <label className="text-white mb-2 text-lg">Set Time</label>
+        <InputMask
+          mask="99:99:99"
+          value={timeInput}
+          onChange={handleTimeInputChange}
+          className="mb-4 p-2 border rounded w-[20em] text-center"
+          placeholder="HH:MM:SS"
+        />
+        <Button onClick={handlePlayClick}>Play</Button>
+      </div>
       )}
       {started && (
         <div className="flex flex-row justify-between mx-auto w-[95%] gap-x-10">
@@ -288,7 +319,7 @@ export const SingleGame = () => {
             onAnswerIncorrect={clueAnsweredInCorrectly}
           //  
           >
-            <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">
+            <div className="overflow-y-scroll h-[400px] mt-8 hidden md:block">
               <DirectionClues direction="across" />
             </div>
             <div className="w-[35em] flex flex-col gap-y-5">
@@ -350,7 +381,7 @@ export const SingleGame = () => {
               </button>
 
             </div>
-            <div className="overflow-y-scroll h-[400px] my-auto hidden md:block">
+            <div className="overflow-y-scroll h-[400px] mt-8 hidden md:block">
               <DirectionClues direction="down" />
             </div>
           </CrosswordProvider>

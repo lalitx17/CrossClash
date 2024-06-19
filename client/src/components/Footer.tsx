@@ -4,7 +4,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-primaryBackground text-white py-6 flex flex-col md:flex-row justify-between items-center px-4 w-full md:px-8">
       <div className="text-center md:text-left">
-      <div className="text-white font-bold md:text-4xl mb-1">CrossClash</div>
+        <div className="text-white font-bold md:text-4xl mb-1">CrossClash</div>
         <div className="mt-4">
           <a href="/privacy" className="text-white hover:underline">Privacy Policy</a>
           <span className="mx-2">|</span>
