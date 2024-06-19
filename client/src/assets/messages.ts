@@ -4,3 +4,4 @@ export const SINGLE_PLAYER = "single_player";
 export const DUAL_PLAYER = "dual_player";
 export const MULTI_PLAYER = "multi_player"; 
 export const GAME_COMPLETED = "game_completed";
+export const SCORE_UPDATE = "score_update";

@@ -7,13 +7,18 @@ import {
   CrosswordGrid,
 } from "@lit17/react-crossword";
 import { formatTime } from "../assets/formatTime.ts";
-import { INIT_GAME, GAME_OVER, DUAL_PLAYER, GAME_COMPLETED } from "../assets/messages.ts";
+import {
+  INIT_GAME,
+  GAME_OVER,
+  DUAL_PLAYER,
+  GAME_COMPLETED,
+  SCORE_UPDATE,
+} from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
 import { useNavigate } from "react-router-dom";
 
 import { Direction } from "@lit17/react-crossword/dist/types";
-
 
 interface CrosswordClue {
   clue: string;
@@ -30,22 +35,21 @@ interface CrosswordData {
 const data = {
   across: {
     1: {
-      clue: 'one plus one',
-      answer: 'TWO',
+      clue: "one plus one",
+      answer: "TWO",
       row: 0,
       col: 0,
     },
   },
   down: {
     2: {
-      clue: 'three minus two',
-      answer: 'ONE',
+      clue: "three minus two",
+      answer: "ONE",
       row: 0,
       col: 2,
     },
   },
 };
-
 
 export const DualGame = () => {
   const socket = useSocket();
@@ -54,14 +58,16 @@ export const DualGame = () => {
   const [time, setTime] = useState<number>(0);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [dialogBoxAppears, setDialogBoxAppears] = useState<boolean>(false);
-  const [isDialogClosedManually, setIsDialogClosedManually] = useState<boolean>(false);
-
+  const [isDialogClosedManually, setIsDialogClosedManually] =
+    useState<boolean>(false);
 
   const crosswordProviderRef = useRef<CrosswordProviderImperative | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null); // Updated type
 
   const [opponentWon, setOpponentWon] = useState<boolean>(false);
 
+  const [playerScore, setPlayerScore] = useState<number>(0);
+  const [opponentScore, setOpponentScore] = useState<number>(0);
 
   const [currentClue, setCurrentClue] = useState<string>("");
   const [direction, setDirection] = useState<string>("");
@@ -69,18 +75,17 @@ export const DualGame = () => {
   const [currentRow, setCurrentRow] = useState<number>(-1);
   const [currentCol, setCurrentCol] = useState<number>(-1);
 
-
   const [answerCount, setAnswerCount] = useState<number>(0);
   const [answer, setAnswer] = useState<string>("");
   const [submittedAnswer, setSubmittedAnswer] = useState<string>("");
 
-  const [highlightBgColor, setHighlightBgColor] = useState('rgb(255,255,204)'); 
-  const [focusBgColor, setFocusBgColor] = useState('rgb(255,255,0)');
-  const [clueStatus, setClueStatus] = useState<{ [key: string]: 'correct' | 'incorrect' | 'unanswered' }>({});
+  const [highlightBgColor, setHighlightBgColor] = useState("rgb(255,255,204)");
+  const [focusBgColor, setFocusBgColor] = useState("rgb(255,255,0)");
+  const [clueStatus, setClueStatus] = useState<{
+    [key: string]: "correct" | "incorrect" | "unanswered";
+  }>({});
 
   const redirect = useNavigate();
-
-
 
   useEffect(() => {
     if (!socket) {
@@ -103,9 +108,12 @@ export const DualGame = () => {
           console.log("Game Over");
           break;
         case GAME_COMPLETED:
-            setOpponentWon(true);
-            setDialogBoxAppears(true);
-            break;
+          setOpponentWon(true);
+          setDialogBoxAppears(true);
+          break;
+        case SCORE_UPDATE:
+            console.log(message.increment);
+          setOpponentScore((prevScore) => prevScore + parseInt(message.increment));
       }
     };
 
@@ -127,7 +135,6 @@ export const DualGame = () => {
       };
     }
   }, [started]);
-
 
   //no scroll when the dialog box appears
   useEffect(() => {
@@ -153,36 +160,61 @@ export const DualGame = () => {
       }
       if (socket) {
         socket.send(
-            JSON.stringify({
-                type: GAME_COMPLETED,
-                mode: DUAL_PLAYER
-            })
+          JSON.stringify({
+            type: GAME_COMPLETED,
+            mode: DUAL_PLAYER,
+          })
         );
-    }
+      }
     }
   };
 
-  const clueAnsweredCorrectly = (direction: Direction, number: string, answer: string) => {
+  const clueAnsweredCorrectly = (
+    direction: Direction,
+    number: string,
+    answer: string
+  ) => {
+    if (!clueStatus[`${direction}-${number}`]) {
+      setPlayerScore((prevScore) => prevScore + answer.length);
+      if (socket) {
+        socket.send(
+          JSON.stringify({
+            mode: DUAL_PLAYER,
+            type: SCORE_UPDATE,
+            incrementAmount: `${answer.length}`,
+          })
+        );
+      }
+    }
     console.log("Correct Answer Yay", direction, number, answer);
-    setHighlightBgColor('lightgreen');
-    setFocusBgColor('green');
-    setClueStatus(prevStatus => ({
+    setHighlightBgColor("lightgreen");
+    setFocusBgColor("green");
+    setClueStatus((prevStatus) => ({
       ...prevStatus,
-      [`${direction}-${number}`]: 'correct'
+      [`${direction}-${number}`]: "correct",
     }));
-  }
+  };
 
-  const clueAnsweredInCorrectly = (direction: Direction, number: string, answer: string) => {
+  const clueAnsweredInCorrectly = (
+    direction: Direction,
+    number: string,
+    answer: string
+  ) => {
     console.log("Incorrect Answer no", direction, number, answer);
-    setHighlightBgColor('#CD5C5C');
-    setFocusBgColor('red');
-    setClueStatus(prevStatus => ({
+    setHighlightBgColor("#CD5C5C");
+    setFocusBgColor("red");
+    setClueStatus((prevStatus) => ({
       ...prevStatus,
-      [`${direction}-${number}`]: 'incorrect'
+      [`${direction}-${number}`]: "incorrect",
     }));
-  }
+  };
 
-  const cellChange = (direction: Direction, number: string | undefined, row: number, col: number) => {
+  const cellChange = (
+    direction: Direction,
+    number: string | undefined,
+    row: number,
+    col: number
+  ) => {
     setDirection(direction);
     setCurrentNumber(number);
     const directionData = crosswordData[direction];
@@ -196,38 +228,39 @@ export const DualGame = () => {
 
       // Set background color based on stored status
       const clueKey = `${direction}-${number}`;
-      if (clueStatus[clueKey] === 'correct') {
-        setHighlightBgColor('lightgreen');
-        setFocusBgColor('green');
-      } else if (clueStatus[clueKey] === 'incorrect') {
-        setHighlightBgColor('#CD5C5C');
-        setFocusBgColor('red');
+      if (clueStatus[clueKey] === "correct") {
+        setHighlightBgColor("lightgreen");
+        setFocusBgColor("green");
+      } else if (clueStatus[clueKey] === "incorrect") {
+        setHighlightBgColor("#CD5C5C");
+        setFocusBgColor("red");
       } else {
-        setHighlightBgColor('rgb(255,255,204)');
-        setFocusBgColor('rgb(255,255,0)');
+        setHighlightBgColor("rgb(255,255,204)");
+        setFocusBgColor("rgb(255,255,0)");
       }
     }
     console.log(direction, number, row, col);
-  }
-
+  };
 
   useEffect(() => {
     console.log(currentClue);
-  }, [currentClue])
-
-
+  }, [currentClue]);
 
   if (isDialogClosedManually) {
-    const inputs = document.querySelectorAll<HTMLInputElement>(`input[aria-label="crossword-input"]`);
-    const answerInput = document.querySelectorAll<HTMLInputElement>(`input[aria-label="answer-input"]`);
+    const inputs = document.querySelectorAll<HTMLInputElement>(
+      `input[aria-label="crossword-input"]`
+    );
+    const answerInput = document.querySelectorAll<HTMLInputElement>(
+      `input[aria-label="answer-input"]`
+    );
 
-    inputs.forEach(input => {
+    inputs.forEach((input) => {
       input.disabled = true;
     });
-    
-    answerInput.forEach(answer => {
-        answer.disabled = true;
-    })
+
+    answerInput.forEach((answer) => {
+      answer.disabled = true;
+    });
   }
 
   const handleDialogClose = () => {
@@ -249,40 +282,47 @@ export const DualGame = () => {
 
   useEffect(() => {
     if (submittedAnswer) {
-      if (direction === 'across') {
+      if (direction === "across") {
         for (let i = currentCol; i < currentCol + answerCount; i++) {
-          crosswordProviderRef.current?.setGuess(currentRow, i, submittedAnswer[i - currentCol]);
+          crosswordProviderRef.current?.setGuess(
+            currentRow,
+            i,
+            submittedAnswer[i - currentCol]
+          );
         }
-      } else if (direction === 'down') {
+      } else if (direction === "down") {
         for (let i = currentRow; i < currentRow + answerCount; i++) {
-          crosswordProviderRef.current?.setGuess(i, currentCol, submittedAnswer[i - currentRow]);
+          crosswordProviderRef.current?.setGuess(
+            i,
+            currentCol,
+            submittedAnswer[i - currentRow]
+          );
         }
       }
       setSubmittedAnswer("");
     }
   }, [submittedAnswer, direction, currentRow, currentCol, answerCount]);
 
-
   if (!socket) return <div>Connecting...</div>;
 
   return (
     <div className="py-14">
-     {!started && (
-    <div className="flex w-2/5 mx-auto">
-        <Button
+      {!started && (
+        <div className="flex w-2/5 mx-auto">
+          <Button
             onClick={() => {
-                socket.send(
-                    JSON.stringify({
-                        type: INIT_GAME,
-                        mode: DUAL_PLAYER
-                    })
-                );
+              socket.send(
+                JSON.stringify({
+                  type: INIT_GAME,
+                  mode: DUAL_PLAYER,
+                })
+              );
             }}
-        >
+          >
             Play
-        </Button>
-    </div>
-)}
+          </Button>
+        </div>
+      )}
       {started && (
         <div className="flex flex-row justify-between mx-auto w-[95%] gap-x-10">
           <CrosswordProvider
@@ -293,18 +333,22 @@ export const DualGame = () => {
             onCellSelected={cellChange}
             onAnswerCorrect={clueAnsweredCorrectly}
             onAnswerIncorrect={clueAnsweredInCorrectly}
-          //  
+            //
           >
             <div className="overflow-y-scroll h-[400px] mt-8 hidden md:block">
               <DirectionClues direction="across" />
             </div>
             <div className="w-[35em] flex flex-col gap-y-5">
+              <div>
+                <div>{`Score: ${playerScore}`}</div>
+                <div>{`Opponent Score: ${opponentScore}`}</div>
+              </div>
               <div className="border-x-4 border-b-4 border-t-[26px] px-4 pb-4 pt-8 border-primaryBackground rounded-lg bg-primaryBackground relative">
-                <CrosswordGrid 
-                theme = {{
-                  focusBackground: focusBgColor,
-                  highlightBackground: highlightBgColor
-                }}
+                <CrosswordGrid
+                  theme={{
+                    focusBackground: focusBgColor,
+                    highlightBackground: highlightBgColor,
+                  }}
                 />
                 <div className="absolute top-0 right-4 flex items-center text-white px-2 py-1">
                   <img
@@ -323,8 +367,12 @@ export const DualGame = () => {
                 <div className="mt-2 text-base">
                   {currentNumber && currentClue ? (
                     <div className="flex flex-col items-center">
-                      <span className="font-bold text-lg">{currentNumber}.</span>
-                      <span className="mt-1">{currentClue} ({answerCount})</span>
+                      <span className="font-bold text-lg">
+                        {currentNumber}.
+                      </span>
+                      <span className="mt-1">
+                        {currentClue} ({answerCount})
+                      </span>
                       <input
                         type="text"
                         aria-label="answer-input"
@@ -336,13 +384,19 @@ export const DualGame = () => {
                       <button
                         onClick={handleSubmit}
                         disabled={answer.length !== answerCount}
-                        className={`mt-2 px-4 py-2 bg-button hover:bg-buttonFocus text-white font-bold rounded ${answer.length !== answerCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`mt-2 px-4 py-2 bg-button hover:bg-buttonFocus text-white font-bold rounded ${
+                          answer.length !== answerCount
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
                       >
                         Submit
                       </button>
                     </div>
                   ) : (
-                    <div className="italic text-sm text-gray-400">Select a clue</div>
+                    <div className="italic text-sm text-gray-400">
+                      Select a clue
+                    </div>
                   )}
                 </div>
               </div>
@@ -356,7 +410,6 @@ export const DualGame = () => {
               >
                 Clear
               </button>
-
             </div>
             <div className="overflow-y-scroll h-[400px] mt-8 hidden md:block">
               <DirectionClues direction="down" />
@@ -365,9 +418,15 @@ export const DualGame = () => {
         </div>
       )}
       <DialogBox
-        title={opponentWon ? "Opponent Won" : isCompleted ? "Congratulations!" : ""}
+        title={
+          opponentWon ? "Opponent Won" : isCompleted ? "Congratulations!" : ""
+        }
         message={
-          opponentWon ? "Your opponent Won!" : isCompleted ? "You completed the crossword!" : ""
+          opponentWon
+            ? "Your opponent Won!"
+            : isCompleted
+            ? "You completed the crossword!"
+            : ""
         }
         onClose={handleDialogClose}
         onGoHome={() => redirect("/")}
@@ -382,8 +441,3 @@ export const DualGame = () => {
     </div>
   );
 };
-
-
-
-
-

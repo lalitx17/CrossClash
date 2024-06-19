@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { GAME_OVER, INIT_GAME, GAME_COMPLETED } from "./messages";
+import { GAME_OVER, INIT_GAME, GAME_COMPLETED, SCORE_UPDATE } from "./messages";
 import { crosswordData, crosswordData2 } from "./crosswordData";
 
 export class DualPlayerGame {
@@ -22,11 +22,28 @@ export class DualPlayerGame {
             }
         }));
     }
-    endGame(endingPlayer: WebSocket) {
-        const opponent = (endingPlayer === this.player1) ? this.player2 : this.player1;
+    public endGame(endingPlayer: WebSocket) {
+        const opponent = this.opponentFinder(endingPlayer);
     
-        opponent.send(JSON.stringify({
-            type: GAME_COMPLETED
-          }));
-      }
+        if (opponent) {
+            opponent.send(JSON.stringify({
+                type: GAME_COMPLETED
+            }));
+        }
+    }
+
+    public scoreUpdate(scoringPlayer: WebSocket, incrementAmount: string){
+        const opponent = this.opponentFinder(scoringPlayer);
+        if (opponent){
+            opponent.send(JSON.stringify({
+                type:SCORE_UPDATE,
+                increment: incrementAmount
+            }))
+        }
+
+    }
+
+    private opponentFinder(player: WebSocket): WebSocket | undefined {
+        return (player === this.player1) ? this.player2 : this.player1;
+    }
 }

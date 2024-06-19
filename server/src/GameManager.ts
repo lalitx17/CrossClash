@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { DUAL_PLAYER, INIT_GAME, SINGLE_PLAYER, GAME_COMPLETED } from "./messages";
+import { DUAL_PLAYER, INIT_GAME, SINGLE_PLAYER, GAME_COMPLETED, SCORE_UPDATE } from "./messages";
 import { DualPlayerGame } from "./DualPlayerGame";
 import { SinglePlayerGame } from "./SinglePlayerGame";
 
@@ -52,6 +52,11 @@ export class GameManager {
           const game = this.findGameBySocket(socket);
           if (game) {
             game.endGame(socket);
+          }
+        } else if (message.type === SCORE_UPDATE){
+          const game = this.findGameBySocket(socket);
+          if (game){
+            game.scoreUpdate(socket, message.incrementAmount);
           }
         }
       }
