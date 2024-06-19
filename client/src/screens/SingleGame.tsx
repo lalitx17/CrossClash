@@ -73,6 +73,10 @@ export const SingleGame = () => {
   const [answer, setAnswer] = useState<string>("");
   const [submittedAnswer, setSubmittedAnswer] = useState<string>("");
 
+  const [highlightBgColor, setHighlightBgColor] = useState('rgb(255,255,204)'); 
+  const [focusBgColor, setFocusBgColor] = useState('rgb(255,255,0)');
+  const [clueStatus, setClueStatus] = useState<{ [key: string]: 'correct' | 'incorrect' | 'unanswered' }>({});
+
   const redirect = useNavigate();
 
 
@@ -156,10 +160,22 @@ export const SingleGame = () => {
 
   const clueAnsweredCorrectly = (direction: Direction, number: string, answer: string) => {
     console.log("Correct Answer Yay", direction, number, answer);
+    setHighlightBgColor('lightgreen');
+    setFocusBgColor('green');
+    setClueStatus(prevStatus => ({
+      ...prevStatus,
+      [`${direction}-${number}`]: 'correct'
+    }));
   }
 
   const clueAnsweredInCorrectly = (direction: Direction, number: string, answer: string) => {
-    console.log("Correct Incorrect noo", direction, number, answer);
+    console.log("Incorrect Answer no", direction, number, answer);
+    setHighlightBgColor('#CD5C5C');
+    setFocusBgColor('red');
+    setClueStatus(prevStatus => ({
+      ...prevStatus,
+      [`${direction}-${number}`]: 'incorrect'
+    }));
   }
 
   const cellChange = (direction: Direction, number: string | undefined, row: number, col: number) => {
@@ -173,9 +189,23 @@ export const SingleGame = () => {
       setAnswerCount(clueObj.answer.length);
       setCurrentRow(clueObj.row);
       setCurrentCol(clueObj.col);
+
+      // Set background color based on stored status
+      const clueKey = `${direction}-${number}`;
+      if (clueStatus[clueKey] === 'correct') {
+        setHighlightBgColor('lightgreen');
+        setFocusBgColor('green');
+      } else if (clueStatus[clueKey] === 'incorrect') {
+        setHighlightBgColor('#CD5C5C');
+        setFocusBgColor('red');
+      } else {
+        setHighlightBgColor('rgb(255,255,204)');
+        setFocusBgColor('rgb(255,255,0)');
+      }
     }
     console.log(direction, number, row, col);
   }
+
 
   useEffect(() => {
     console.log(currentClue);
@@ -263,7 +293,12 @@ export const SingleGame = () => {
             </div>
             <div className="w-[35em] flex flex-col gap-y-5">
               <div className="border-x-4 border-b-4 border-t-[26px] px-4 pb-4 pt-8 border-primaryBackground rounded-lg bg-primaryBackground relative">
-                <CrosswordGrid />
+                <CrosswordGrid 
+                theme = {{
+                  focusBackground: focusBgColor,
+                  highlightBackground: highlightBgColor
+                }}
+                />
                 <div className="absolute top-0 right-4 flex items-center text-white px-2 py-1">
                   <img
                     src="images/clock.png"
