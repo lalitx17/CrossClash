@@ -7,6 +7,7 @@ import './App.css'
 import Layout from './Layout.tsx'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { TeamGame } from './screens/TeamGame.tsx'
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: '/singlegame',
         element: <SingleGame />
+      }, 
+      {
+        path: '/teamgame', 
+        element: <TeamGame />
       }
     ],
   },

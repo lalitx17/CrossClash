@@ -13,6 +13,10 @@ export default function App() {
     redirect("/singlegame")
   }
 
+  const teamGameHandler = () => {
+    redirect("/teamgame")
+  }
+
   return (
     <><div>
         <div className="flex flex-row flex-wrap justify-around py-[10em] bg-white">
@@ -24,7 +28,7 @@ export default function App() {
             <button onClick={singleHandler} className="bg-button text-white font-bold py-2 px-4 rounded hover:bg-buttonFocus">
               Single
             </button>
-            <button className="bg-button text-white font-bold py-2 px-4 rounded hover:bg-buttonFocus">
+            <button onClick={teamGameHandler} className="bg-button text-white font-bold py-2 px-4 rounded hover:bg-buttonFocus">
               Team
             </button>
           </div>
