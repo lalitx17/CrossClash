@@ -1,20 +1,25 @@
 import { WebSocket } from "ws";
-import { DUAL_PLAYER, INIT_GAME, SINGLE_PLAYER, GAME_COMPLETED, SCORE_UPDATE } from "./messages";
+import { DUAL_PLAYER, INIT_GAME, SINGLE_PLAYER, GAME_COMPLETED, SCORE_UPDATE, TEAM_GAME } from "./messages";
 import { DualPlayerGame } from "./DualPlayerGame";
 import { SinglePlayerGame } from "./SinglePlayerGame";
+import { TeamGame } from "./TeamGame";
 
 export class GameManager {
   private dualPlayerGames: DualPlayerGame[];
   private singlePlayerGames: SinglePlayerGame[];
+  private teamGames: TeamGame[];
 
   private pendingUser: WebSocket | null;
   private users: WebSocket[];
+
+
 
   constructor() {
     this.dualPlayerGames = [];
     this.pendingUser = null;
     this.users = [];
     this.singlePlayerGames = [];
+    this.teamGames = [];
   }
 
   addUser(socket: WebSocket) {
@@ -58,6 +63,11 @@ export class GameManager {
           if (game){
             game.scoreUpdate(socket, message.incrementAmount);
           }
+        }
+      }else if (message.mode === TEAM_GAME){
+        if (message.type === INIT_GAME){
+          if (this.teamGames.find(game => game.gameId === message.data.gameId)){
+            
         }
       }
     });
