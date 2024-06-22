@@ -13,6 +13,11 @@ import {
   TEAM_GAME,
   GAME_COMPLETED,
   SCORE_UPDATE,
+  PLAYER_JOINED,
+  RED,
+  BLUE,
+  NEW_PLAYER,
+  STATUS_UPDATE
 } from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
@@ -70,8 +75,8 @@ export const TeamGame = () => {
   const [playerScore, setPlayerScore] = useState<number>(0);
   const [opponentScore, setOpponentScore] = useState<number>(0);
 
-  const [team1, setTeam1] = useState<string>("");
-  const [team2, setTeam2] = useState<string>("");
+  const [teamBlue, setTeamBlue] = useState<string[]>([]);
+  const [teamRed, setTeamRed] = useState<string[]>([]);
   const [playerName, setPlayerName] = useState<string>("");
 
   const [currentClue, setCurrentClue] = useState<string>("");
@@ -91,6 +96,7 @@ export const TeamGame = () => {
   }>({});
 
   const redirect = useNavigate();
+  const [isLeader, setIsLeader] = useState(false);
   const { gameId } = useParams();
 
   useEffect(() => {
@@ -110,6 +116,9 @@ export const TeamGame = () => {
             console.error("Invalid message payload");
           }
           break;
+        case STATUS_UPDATE:
+          break;
+
         case GAME_OVER:
           console.log("Game Over");
           break;
@@ -131,6 +140,19 @@ export const TeamGame = () => {
   }, [socket]);
 
   useEffect(() => {
+    socket?.send(
+      JSON.stringify({
+        mode: TEAM_GAME,
+        type: NEW_PLAYER,
+        data: {
+          gameId: gameId,
+        }
+        
+      })
+    );
+  })
+
+  useEffect(() => {
     if (started) {
       timerRef.current = setInterval(() => {
         setTime((prevTime) => prevTime + 1);
@@ -144,7 +166,6 @@ export const TeamGame = () => {
     }
   }, [started]);
 
-  //no scroll when the dialog box appears
   useEffect(() => {
     if (dialogBoxAppears) {
       document.body.classList.add("body-no-scroll");
@@ -311,64 +332,108 @@ export const TeamGame = () => {
     }
   }, [submittedAnswer, direction, currentRow, currentCol, answerCount]);
 
+  const isPlayerInTeam = (playerName: string) => {
+    const isInRedTeam = teamRed.some((member) => member === playerName);
+    const isInBlueTeam = teamBlue.some((member) => member === playerName);
 
+    if (isInRedTeam) {
+      return "RED";
+    } else if (isInBlueTeam) {
+      return "BLUE";
+    }
+  };
+
+  const joinTeam = (team: string) => {
+    if (!playerName) {
+      alert("Please enter your name before joining a team.");
+      return;
+    }
+
+    if (team === "red") {
+      if (teamRed.length === 0) {
+        setIsLeader(true);
+      }
+      setTeamRed((prevTeam) => [...prevTeam, playerName]);
+      socket?.send(
+        JSON.stringify({
+          mode: TEAM_GAME,
+          type: PLAYER_JOINED,
+          data: {
+            teamName: RED,
+            gameId: gameId,
+            playerName: playerName,
+          },
+        })
+      );
+    } else if (team === "blue") {
+      if (teamBlue.length === 0) {
+        setIsLeader(true);
+      }
+      setTeamBlue((prevTeam) => [...prevTeam, playerName]);
+      socket?.send(
+        JSON.stringify({
+          mode: TEAM_GAME,
+          type: PLAYER_JOINED,
+          data: {
+            teamName: BLUE,
+            gameId: gameId,
+            playerName: playerName,
+          },
+        })
+      );
+    }
+  };
 
   if (!socket) return <div>Connecting...</div>;
 
   return (
     <div className="py-14">
       {!started && (
-       <div className="flex flex-col align w-4/5 mx-auto">
-        <div className="mx-auto">
-        <CopyButton gameId={gameId} />
-        </div>    
-        
-       <div className="bg-primaryBackground flex flex-col md:w-2/5 w-[95%] mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
-       <div className="flex w-full mb-4">
-       <label className="text-white mb-2 pt-2 text-lg">Name</label>
-           <input
-             type="text"
-             placeholder="Your Name"
-             value={playerName}
-             onChange={(e) => setPlayerName(e.target.value)}
-             className="flex-1 mx-2 p-2 w-14 rounded"
-           />
-         </div>
-         <label className="text-white mb-2 text-lg">Teams</label>
-         <div className="flex w-full mb-4">
-           <input
-             type="text"
-             placeholder="Team 1"
-             value={team1}
-             maxLength={10}
-             onChange={(e) => setTeam1(e.target.value)}
-             className="flex-1 mx-2 p-2 w-14 rounded"
-           />
-           <input
-             type="text"
-             placeholder="Team 2"
-             value={team2}
-             maxLength={10}
-             onChange={(e) => setTeam2(e.target.value)}
-             className="flex-1 mx-2 p-2 w-14 rounded"
-           />
-         </div>
- 
-         <Button
-           onClick={() => {
-             socket.send(
-               JSON.stringify({
-                 type: 'INIT_GAME',
-                 mode: 'TEAM_GAME',
-                 teams: { team1, team2 },
-               })
-             );
-           }}
-         >
-           Load Game
-         </Button>
-       </div>
-     </div>
+        <div className="flex flex-col align w-4/5 mx-auto">
+          <div className="mx-auto">
+            <CopyButton gameId={gameId} />
+          </div>
+
+          <div className="bg-primaryBackground flex flex-col md:w-2/5 w-[95%] mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+            <div className="flex w-full mb-4">
+              <label className="text-white mb-2 pt-2 text-lg">Name</label>
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="flex-1 mx-2 p-2 w-14 rounded"
+                disabled={
+                  teamRed.includes(playerName) || teamBlue.includes(playerName)
+                }
+              />
+            </div>
+            <label className="text-white mb-2 text-lg">Teams</label>
+            <div className="flex flex-row gap-x-5 mb-5">
+              <Button onClick={() => joinTeam("red")}>Join Red</Button>
+              <Button onClick={() => joinTeam("blue")}>Join Blue</Button>
+            </div>
+
+            <Button
+              onClick={() => {
+                socket.send(
+                  JSON.stringify({
+                    mode: "TEAM_GAME",
+                    type: "INIT_GAME",
+                    data: {
+                      gameNumber: gameId,
+                      teamName: isPlayerInTeam(playerName),
+                    },
+                  })
+                );
+              }}
+            >
+              Load Game
+            </Button>
+            {isLeader && (
+              <div className="text-green-500">You are the leader!</div>
+            )}
+          </div>
+        </div>
       )}
       {started && (
         <div className="flex flex-row justify-between mx-auto w-[95%] gap-x-10">
