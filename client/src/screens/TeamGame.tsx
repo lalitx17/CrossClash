@@ -10,14 +10,14 @@ import { formatTime } from "../assets/formatTime.ts";
 import {
   INIT_GAME,
   GAME_OVER,
-  DUAL_PLAYER,
+  TEAM_GAME,
   GAME_COMPLETED,
   SCORE_UPDATE,
-  TEAM_GAME,
 } from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import CopyButton from "../components/CopyButton.tsx";
 
 import { Direction } from "@lit17/react-crossword/dist/types";
 
@@ -72,6 +72,7 @@ export const TeamGame = () => {
 
   const [team1, setTeam1] = useState<string>("");
   const [team2, setTeam2] = useState<string>("");
+  const [playerName, setPlayerName] = useState<string>("");
 
   const [currentClue, setCurrentClue] = useState<string>("");
   const [direction, setDirection] = useState<string>("");
@@ -90,6 +91,7 @@ export const TeamGame = () => {
   }>({});
 
   const redirect = useNavigate();
+  const { gameId } = useParams();
 
   useEffect(() => {
     if (!socket) {
@@ -168,7 +170,7 @@ export const TeamGame = () => {
         socket.send(
           JSON.stringify({
             type: GAME_COMPLETED,
-            mode: DUAL_PLAYER,
+            mode: TEAM_GAME,
           })
         );
       }
@@ -185,7 +187,7 @@ export const TeamGame = () => {
       if (socket) {
         socket.send(
           JSON.stringify({
-            mode: DUAL_PLAYER,
+            mode: TEAM_GAME,
             type: SCORE_UPDATE,
             incrementAmount: `${answer.length}`,
           })
@@ -309,20 +311,36 @@ export const TeamGame = () => {
     }
   }, [submittedAnswer, direction, currentRow, currentCol, answerCount]);
 
+
+
   if (!socket) return <div>Connecting...</div>;
 
   return (
     <div className="py-14">
       {!started && (
-       <div className="flex w-4/5 mx-auto">
+       <div className="flex flex-col align w-4/5 mx-auto">
+        <div className="mx-auto">
+        <CopyButton gameId={gameId} />
+        </div>    
+        
        <div className="bg-primaryBackground flex flex-col md:w-2/5 w-[95%] mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+       <div className="flex w-full mb-4">
+       <label className="text-white mb-2 pt-2 text-lg">Name</label>
+           <input
+             type="text"
+             placeholder="Your Name"
+             value={playerName}
+             onChange={(e) => setPlayerName(e.target.value)}
+             className="flex-1 mx-2 p-2 w-14 rounded"
+           />
+         </div>
          <label className="text-white mb-2 text-lg">Teams</label>
-         
          <div className="flex w-full mb-4">
            <input
              type="text"
              placeholder="Team 1"
              value={team1}
+             maxLength={10}
              onChange={(e) => setTeam1(e.target.value)}
              className="flex-1 mx-2 p-2 w-14 rounded"
            />
@@ -330,6 +348,7 @@ export const TeamGame = () => {
              type="text"
              placeholder="Team 2"
              value={team2}
+             maxLength={10}
              onChange={(e) => setTeam2(e.target.value)}
              className="flex-1 mx-2 p-2 w-14 rounded"
            />
@@ -340,7 +359,7 @@ export const TeamGame = () => {
              socket.send(
                JSON.stringify({
                  type: 'INIT_GAME',
-                 mode: 'DUAL_PLAYER',
+                 mode: 'TEAM_GAME',
                  teams: { team1, team2 },
                })
              );

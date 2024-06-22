@@ -26,7 +26,7 @@ const router = createBrowserRouter([
         element: <SingleGame />
       }, 
       {
-        path: '/teamgame', 
+        path: '/teamgame/:gameId', 
         element: <TeamGame />
       }
     ],

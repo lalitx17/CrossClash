@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import short from 'short-uuid';
 
 
 export default function App() {
@@ -14,7 +15,9 @@ export default function App() {
   }
 
   const teamGameHandler = () => {
-    redirect("/teamgame")
+    const translator = short();
+    const newGameId = translator.new();
+    redirect(`/teamgame/${newGameId}`);
   }
 
   return (
