@@ -17,7 +17,7 @@ import {
   RED,
   BLUE,
   NEW_PLAYER,
-  STATUS_UPDATE
+  STATUS_UPDATE,
 } from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
@@ -117,6 +117,9 @@ export const TeamGame = () => {
           }
           break;
         case STATUS_UPDATE:
+          console.log(message.data);
+          setTeamRed(message.data.teamRed);
+          setTeamBlue(message.data.teamBlue);
           break;
 
         case GAME_OVER:
@@ -146,11 +149,10 @@ export const TeamGame = () => {
         type: NEW_PLAYER,
         data: {
           gameId: gameId,
-        }
-        
+        },
       })
     );
-  })
+  });
 
   useEffect(() => {
     if (started) {
@@ -389,49 +391,71 @@ export const TeamGame = () => {
   return (
     <div className="py-14">
       {!started && (
-        <div className="flex flex-col align w-4/5 mx-auto">
-          <div className="mx-auto">
-            <CopyButton gameId={gameId} />
+        <div className="flex flex-row justify-center items-start align mx-8">
+          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+            <label className="text-white mb-2 pt-2 text-lg">Red Team</label>
+            <ul className="list-disc list-inside text-white">
+              {teamRed.map((player, index) => (
+                <li key={index}>{player}</li>
+              ))}
+            </ul>
           </div>
-
-          <div className="bg-primaryBackground flex flex-col md:w-2/5 w-[95%] mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
-            <div className="flex w-full mb-4">
-              <label className="text-white mb-2 pt-2 text-lg">Name</label>
-              <input
-                type="text"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                className="flex-1 mx-2 p-2 w-14 rounded"
-                disabled={
-                  teamRed.includes(playerName) || teamBlue.includes(playerName)
-                }
-              />
-            </div>
-            <label className="text-white mb-2 text-lg">Teams</label>
-            <div className="flex flex-row gap-x-5 mb-5">
-              <Button onClick={() => joinTeam("red")}>Join Red</Button>
-              <Button onClick={() => joinTeam("blue")}>Join Blue</Button>
+          <div className="flex flex-col align w-full mx-auto">
+            <div className="mx-auto">
+              <CopyButton gameId={gameId} />
             </div>
 
-            <Button
-              onClick={() => {
-                socket.send(
-                  JSON.stringify({
-                    mode: "TEAM_GAME",
-                    type: "INIT_GAME",
-                    data: {
-                      gameNumber: gameId,
-                      teamName: isPlayerInTeam(playerName),
-                    },
-                  })
-                );
-              }}
-            >
-              Load Game
-            </Button>
-            {isLeader && (
-              <div className="text-green-500">You are the leader!</div>
-            )}
+            <div className="bg-primaryBackground flex flex-col md:w-3/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+              <div className="flex w-full mb-4">
+                <label className="text-white mb-2 pt-2 text-lg">Name</label>
+                <input
+                  type="text"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  className="flex-1 mx-2 p-2 w-14 rounded"
+                  disabled={
+                    teamRed.includes(playerName) ||
+                    teamBlue.includes(playerName)
+                  }
+                />
+              </div>
+              <label className="text-white mb-2 text-lg">Teams</label>
+              <div className="flex flex-row gap-x-5 mb-5">
+                <Button onClick={() => joinTeam("red")}>Join Red</Button>
+                <Button onClick={() => joinTeam("blue")}>Join Blue</Button>
+              </div>
+
+              {isLeader && (
+                <Button
+                  onClick={() => {
+                    socket.send(
+                      JSON.stringify({
+                        mode: "TEAM_GAME",
+                        type: "INIT_GAME",
+                        data: {
+                          gameNumber: gameId,
+                          teamName: isPlayerInTeam(playerName),
+                        },
+                      })
+                    );
+                  }}
+                >
+                  Load Game
+                </Button>
+              )}
+
+              {isLeader && (
+                <div className="text-green-500">You are the leader!</div>
+              )}
+            </div>
+          </div>
+          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+            <label className="text-white mb-2 pt-2 text-lg">Blue Team</label>
+            <ul className="list-disc list-inside text-white">
+              {teamBlue.map((player, index) => (
+                <li key={index}>{player}</li>
+              ))}
+            </ul>
           </div>
         </div>
       )}

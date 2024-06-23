@@ -54,6 +54,7 @@ export class TeamGame {
         } else if (teamName === BLUE) {
             this.teamBlue.push(member);
         }
+        this.broadcastNewInfo();
     }
 
     public statusUpdater(newPlayer: WebSocket){
@@ -64,5 +65,26 @@ export class TeamGame {
                 teamBlue: this.teamBlue.map(member => member.playerName)
             }
         }))
+    }
+
+    public broadcastNewInfo(){
+        this.teamBlue.forEach(member => {
+            member.socket.send(JSON.stringify({
+                type: STATUS_UPDATE,
+                data: {
+                    teamRed: this.teamRed.map(member => member.playerName),
+                    teamBlue: this.teamBlue.map(member => member.playerName)
+                }
+            }));
+        });
+        this.teamRed.forEach(member => {
+            member.socket.send(JSON.stringify({
+                type: STATUS_UPDATE,
+                data: {
+                    teamRed: this.teamRed.map(member => member.playerName),
+                    teamBlue: this.teamBlue.map(member => member.playerName)
+                }
+            }));
+        });
     }
 }

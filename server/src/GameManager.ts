@@ -71,20 +71,27 @@ export class GameManager {
           }
         }
       } else if (message.mode === TEAM_GAME) {
+        //fired when the leader 
         if (message.type === INIT_GAME) {
           const game = this.findTeamGame(message.data.gameId);
           if (game) {
             game.gameStarter(socket, message.data.teamName);
           }
+          //fired when the a new player joins the game
         } else if (message.type === PLAYER_JOINED) {
           const game = this.findTeamGame(message.data.gameId);
           if(game){
             game.addMembers(socket, message.data.teamName, message.data.playerName);
+          }else{
+            const game = new TeamGame(message.data.gameId);
+            game.addMembers(socket, message.data.teamName, message.data.playerName);
+            this.teamGames.push(game);
           }
+          //fired when new player enter the link
         } else if (message.type === NEW_PLAYER){
           const game = this.findTeamGame(message.data.gameId);
           if(game){
-            
+            game.statusUpdater(socket);
           }
         }
       }
