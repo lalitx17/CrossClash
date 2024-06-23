@@ -122,11 +122,7 @@ export const TeamGame = () => {
           setTeamRed(message.data.teamRed);
           setTeamBlue(message.data.teamBlue);
           break;
-
         case GAME_OVER:
-          console.log("Game Over");
-          break;
-        case GAME_COMPLETED:
           setOpponentWon(true);
           setDialogBoxAppears(true);
           break;
@@ -197,14 +193,16 @@ export const TeamGame = () => {
           clearInterval(timerRef.current);
         }
       }
-      if (socket) {
-        socket.send(
+        socket?.send(
           JSON.stringify({
             type: GAME_COMPLETED,
             mode: TEAM_GAME,
+            payload: {
+              gameId: gameId,
+              teamName: isPlayerInTeam(playerName),
+            }
           })
         );
-      }
     }
   };
 

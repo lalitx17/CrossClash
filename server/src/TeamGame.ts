@@ -134,6 +134,26 @@ export class TeamGame {
     }
   }
 
+  public endGame(teamName: string){
+    if (teamName === RED){
+      this.teamBlue.forEach((member) => {
+        member.socket.send(
+          JSON.stringify({
+            type: GAME_OVER,
+          })
+        );
+      });
+    }else if (teamName === BLUE){
+      this.teamRed.forEach((member) => {
+        member.socket.send(
+          JSON.stringify({
+            type: GAME_OVER,
+          })
+        );
+      });
+    }
+  }
+
   public broadcastTeamInfo() {
     this.teamBlue.forEach((member) => {
       member.socket.send(

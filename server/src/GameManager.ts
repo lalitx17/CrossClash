@@ -100,6 +100,11 @@ export class GameManager {
           if (game){
             game.scoreUpdate(message.payload.teamName, message.payload.incrementAmount, message.payload.answer, message.payload.direction, message.payload.number, message.payload.row, message.payload.col);
           }
+        } else if (message.type === GAME_COMPLETED){
+            const game = this.findTeamGame(message.payload.gameId);
+            if (game){
+              game.endGame(message.payload.teamName);
+            }
         }
       }
     });
