@@ -71,6 +71,7 @@ export class GameManager {
           }
         }
       } else if (message.mode === TEAM_GAME) {
+        
         //fired when the leader 
         if (message.type === INIT_GAME) {
           const game = this.findTeamGame(message.data.gameId);

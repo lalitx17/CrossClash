@@ -117,7 +117,6 @@ export const TeamGame = () => {
           }
           break;
         case STATUS_UPDATE:
-          console.log(message.data);
           setTeamRed(message.data.teamRed);
           setTeamBlue(message.data.teamBlue);
           break;
@@ -428,12 +427,12 @@ export const TeamGame = () => {
               {isLeader && (
                 <Button
                   onClick={() => {
-                    socket.send(
+                    socket?.send(
                       JSON.stringify({
-                        mode: "TEAM_GAME",
-                        type: "INIT_GAME",
+                        mode: TEAM_GAME,
+                        type: INIT_GAME,
                         data: {
-                          gameNumber: gameId,
+                          gameId: gameId,
                           teamName: isPlayerInTeam(playerName),
                         },
                       })
