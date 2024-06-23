@@ -18,6 +18,8 @@ import {
   BLUE,
   NEW_PLAYER,
   STATUS_UPDATE,
+  OPP_SCORE_UPDATE,
+  OWN_SCORE_UPDATE
 } from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
@@ -128,11 +130,14 @@ export const TeamGame = () => {
           setOpponentWon(true);
           setDialogBoxAppears(true);
           break;
-        case SCORE_UPDATE:
+        case OPP_SCORE_UPDATE:
           console.log(message.increment);
           setOpponentScore(
             (prevScore) => prevScore + parseInt(message.increment)
           );
+          break;
+        case OWN_SCORE_UPDATE:
+          break;
       }
     };
 
@@ -206,15 +211,17 @@ export const TeamGame = () => {
   ) => {
     if (!clueStatus[`${direction}-${number}`]) {
       setPlayerScore((prevScore) => prevScore + answer.length);
-      if (socket) {
-        socket.send(
+        socket?.send(
           JSON.stringify({
             mode: TEAM_GAME,
             type: SCORE_UPDATE,
-            incrementAmount: `${answer.length}`,
+            data: {
+              gameId: gameId,
+              teamName: isPlayerInTeam(playerName),
+              incrementAmount: `${answer.length}`,
+            }
           })
         );
-      }
     }
     console.log("Correct Answer Yay", direction, number, answer);
     setHighlightBgColor("lightgreen");

@@ -31,7 +31,7 @@ export class TeamGame {
     const leader: Leader = { socket, teamName };
     if (this.loadGamePressed.length === 0) {
       this.loadGamePressed.push(leader);
-    } else {
+    } else if(this.loadGamePressed.length === 1 && this.loadGamePressed[0].teamName !== teamName){
       this.loadGamePressed.push(leader);
       this.teamBlue.forEach((member) => {
         member.socket.send(
