@@ -70,6 +70,7 @@ export class GameManager {
             game.scoreUpdate(socket, message.incrementAmount);
           }
         }
+        //TEAM GAME
       } else if (message.mode === TEAM_GAME) {
         
         //fired when the leader 
@@ -93,6 +94,11 @@ export class GameManager {
           const game = this.findTeamGame(message.data.gameId);
           if(game){
             game.statusUpdater(socket);
+          }
+        } else if (message.type === SCORE_UPDATE){
+          const game = this.findTeamGame(message.payload.gameId);
+          if (game){
+            game.scoreUpdate(message.payload.teamName, message.payload.incrementAmount, message.payload.answer, message.payload.direction, message.payload.number, message.payload.row, message.payload.col);
           }
         }
       }

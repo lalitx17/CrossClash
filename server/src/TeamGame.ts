@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { GAME_OVER, INIT_GAME, RED, BLUE, STATUS_UPDATE } from "./messages";
+import { GAME_OVER, INIT_GAME, RED, BLUE, STATUS_UPDATE, OPP_SCORE_UPDATE, OWN_SCORE_UPDATE } from "./messages";
 import { crosswordData, crosswordData2 } from "./crosswordData";
 
 // Define a structure for team members
@@ -63,7 +63,7 @@ export class TeamGame {
     } else if (teamName === BLUE) {
       this.teamBlue.push(member);
     }
-    this.broadcastNewInfo();
+    this.broadcastTeamInfo();
   }
 
   public statusUpdater(newPlayer: WebSocket) {
@@ -78,7 +78,63 @@ export class TeamGame {
     );
   }
 
-  public broadcastNewInfo() {
+  public scoreUpdate(teamName: string, incrementAmount: string, answer: string, direction:string, number: string, row: string, col: string){
+    if (teamName === RED){
+      this.teamBlue.forEach((member) => {
+        member.socket.send(
+          JSON.stringify({
+            type: OPP_SCORE_UPDATE,
+            payload: {
+              incrementAmount: incrementAmount,
+            },
+          })
+        );
+      });
+      this.teamRed.forEach((member) => {
+        member.socket.send(
+          JSON.stringify({
+            type: OWN_SCORE_UPDATE,
+            payload: {
+              incrementAmount: incrementAmount,
+              answer: answer, 
+              direction: direction,
+              number: number,
+              row: row,
+              col: col,
+            },
+          })
+        );
+      });
+    }else if (teamName === BLUE){
+      this.teamBlue.forEach((member) => {
+        member.socket.send(
+          JSON.stringify({
+            type: OWN_SCORE_UPDATE,
+            payload: {
+              incrementAmount: incrementAmount,
+              answer: answer, 
+              direction: direction,
+              number: number,
+              row: row, 
+              col: col,
+            },
+          })
+        );
+      });
+      this.teamRed.forEach((member) => {
+        member.socket.send(
+          JSON.stringify({
+            type: OPP_SCORE_UPDATE,
+            payload: {
+              incrementAmount: incrementAmount,
+            },
+          })
+        );
+      });
+    }
+  }
+
+  public broadcastTeamInfo() {
     this.teamBlue.forEach((member) => {
       member.socket.send(
         JSON.stringify({

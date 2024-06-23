@@ -131,12 +131,16 @@ export const TeamGame = () => {
           setDialogBoxAppears(true);
           break;
         case OPP_SCORE_UPDATE:
-          console.log(message.increment);
+          console.log(message.payload.incrementAmount);
           setOpponentScore(
-            (prevScore) => prevScore + parseInt(message.increment)
+            (prevScore) => prevScore + parseInt(message.payload.incrementAmount)
           );
           break;
         case OWN_SCORE_UPDATE:
+          setPlayerScore(
+            (prevScore) => prevScore + parseInt(message.payload.incrementAmount)
+          )
+          answeredByTeammates(message.payload.answer, message.payload.direction, message.payload.number, parseInt(message.payload.row), parseInt(message.payload.col));
           break;
       }
     };
@@ -209,21 +213,24 @@ export const TeamGame = () => {
     number: string,
     answer: string
   ) => {
-    if (!clueStatus[`${direction}-${number}`]) {
-      setPlayerScore((prevScore) => prevScore + answer.length);
+    if (clueStatus[`${direction}-${number}`] !== "correct") {
         socket?.send(
           JSON.stringify({
             mode: TEAM_GAME,
             type: SCORE_UPDATE,
-            data: {
+            payload: {
               gameId: gameId,
               teamName: isPlayerInTeam(playerName),
               incrementAmount: `${answer.length}`,
+              answer: answer, 
+              direction: `${direction}`,
+              number: number,
+              row: `${currentRow}`,
+              col: `${currentCol}`, 
             }
           })
         );
     }
-    console.log("Correct Answer Yay", direction, number, answer);
     setHighlightBgColor("lightgreen");
     setFocusBgColor("green");
     setClueStatus((prevStatus) => ({
@@ -249,8 +256,8 @@ export const TeamGame = () => {
   const cellChange = (
     direction: Direction,
     number: string | undefined,
-    row: number,
-    col: number
+    //row: number,
+    //col: number
   ) => {
     setDirection(direction);
     setCurrentNumber(number);
@@ -276,7 +283,6 @@ export const TeamGame = () => {
         setFocusBgColor("rgb(255,255,0)");
       }
     }
-    console.log(direction, number, row, col);
   };
 
   useEffect(() => {
@@ -317,6 +323,31 @@ export const TeamGame = () => {
     setAnswer("");
   };
 
+  const answeredByTeammates = (answer: string, direction: string, number:string, row: number, col: number) => {
+    console.log(number,direction, row, col, answer);
+    if (direction === "across") {
+      for (let i = col; i < col + answer.length; i++) {
+        crosswordProviderRef.current?.setGuess(
+          row,
+          i,
+          answer[i - col]
+        );
+      }
+    } else if (direction === "down") {
+      for (let i = row; i < row + answer.length; i++) {
+        crosswordProviderRef.current?.setGuess(
+          i,
+          col,
+          answer[i - row]
+        );
+      }
+    }
+    setClueStatus((prevStatus) => ({
+      ...prevStatus,
+      [`${direction}-${number}`]: "correct",
+    }));
+  }
+
   useEffect(() => {
     if (submittedAnswer) {
       if (direction === "across") {
@@ -345,9 +376,9 @@ export const TeamGame = () => {
     const isInBlueTeam = teamBlue.some((member) => member === playerName);
 
     if (isInRedTeam) {
-      return "RED";
+      return RED;
     } else if (isInBlueTeam) {
-      return "BLUE";
+      return BLUE;
     }
   };
 
@@ -504,7 +535,7 @@ export const TeamGame = () => {
                 />
                 <div className="absolute top-0 right-4 flex items-center text-white px-2 py-1">
                   <img
-                    src="images/clock.png"
+                    src="/images/clock.png"
                     width={15}
                     height={15}
                     alt="clock"
