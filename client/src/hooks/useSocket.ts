@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 
 const IO_URL = process.env.NODE_ENV === 'production'
-  ? 'https://cross-clash.vercel.app'
+  ? 'https://cross-clash-git-main-lalitx17s-projects.vercel.app'
   : 'http://localhost:8080';
 
 export const useSocket = () => {
