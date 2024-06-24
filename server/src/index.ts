@@ -18,15 +18,23 @@ const server = http.createServer((req, res) => {
         <h1>WebSocket Test</h1>
         <div id="message"></div>
         <script>
-          const ws = new WebSocket('ws://' + window.location.host);
+          const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+          const ws = new WebSocket(wsProtocol + '//' + window.location.host);
+          
           ws.onopen = function() {
             console.log('WebSocket connection opened');
           };
+          
           ws.onmessage = function(event) {
             document.getElementById('message').innerText = event.data;
           };
+          
           ws.onclose = function() {
             console.log('WebSocket connection closed');
+          };
+          
+          ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
           };
         </script>
       </body>
@@ -44,10 +52,14 @@ const wss = new WebSocketServer({ server });
 const gameManager = new GameManager();
 
 wss.on('connection', function connection(ws) {
+  console.log('A new client connected');
   gameManager.addUser(ws);
   ws.send('Welcome! You are connected to the WebSocket server.');
 
-  ws.on('close', () => gameManager.removeUser(ws)); // Use "close" instead of "disconnect"
+  ws.on('close', () => {
+    console.log('A client disconnected');
+    gameManager.removeUser(ws);
+  });
 });
 
 server.listen(port, () => {
