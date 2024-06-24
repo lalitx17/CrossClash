@@ -19,8 +19,14 @@ const server = http.createServer((req, res) => {
         <div id="message"></div>
         <script>
           const ws = new WebSocket('ws://' + window.location.host);
+          ws.onopen = function() {
+            console.log('WebSocket connection opened');
+          };
           ws.onmessage = function(event) {
             document.getElementById('message').innerText = event.data;
+          };
+          ws.onclose = function() {
+            console.log('WebSocket connection closed');
           };
         </script>
       </body>
@@ -28,7 +34,7 @@ const server = http.createServer((req, res) => {
     `);
   } else {
     res.writeHead(404);
-    res.end();
+    res.end('Not Found');
   }
 });
 
