@@ -1,7 +1,10 @@
 import {useEffect, useState} from 'react';
 
-const WS_URL = process.env.NODE_ENV === 'production' ? 'wss://cross-clash-795oi4nb0-lalitx17s-projects.vercel.app' : 'ws://localhost:8080';
+const WS_URL = process.env.NODE_ENV === 'production' 
+  ? 'wss://cross-clash.vercel.app' 
+  : 'ws://localhost:8080';
 
+  
 export const useSocket = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
   
