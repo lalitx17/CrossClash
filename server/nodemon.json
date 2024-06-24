@@ -1,7 +1,7 @@
 {
-    "watch": ["api"],
+    "watch": ["src"],
     "ext": "ts",
-    "ignore": ["dist"],
-    "exec": "npm run build && node dist/index.js"
+    "ignore": ["api"],
+    "exec": "npm run build && node api/index.js"
   }
   
