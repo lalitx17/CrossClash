@@ -1,44 +1,46 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
+import io, { Socket } from 'socket.io-client';
 
-const WS_URL = process.env.NODE_ENV === 'production' 
-  ? 'wss://cross-clash.vercel.app' 
-  : 'ws://localhost:8080';
+const IO_URL = process.env.NODE_ENV === 'production'
+  ? 'https://cross-clash.vercel.app'
+  : 'http://localhost:8080';
 
-  
 export const useSocket = () => {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
-  
-    useEffect(() => {
-      let ws: WebSocket;
-  
-      const connect = () => {
-        ws = new WebSocket(WS_URL);
-  
-        ws.onopen = () => {
-          setSocket(ws);
-          console.log("Connected");
-        };
-  
-        ws.onclose = () => {
-          setSocket(null);
-          setTimeout(connect, 5000); // Attempt to reconnect after 5 seconds
-        };
-  
-        ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
-          ws.close();
-        };
-      };
-  
-      connect();
-  
-      return () => {
-        if (ws) {
-          ws.close();
-        }
-      };
-    }, []);
-  
-    return socket;
-  };
-  
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    let socketInstance: Socket;
+
+    const connect = () => {
+      socketInstance = io(IO_URL, {
+        reconnectionAttempts: Infinity,
+        timeout: 10000,
+        transports: ['websocket'],
+      });
+
+      socketInstance.on('connect', () => {
+        setSocket(socketInstance);
+        console.log("Connected");
+      });
+
+      socketInstance.on('disconnect', (reason) => {
+        setSocket(null);
+        console.log("Disconnected:", reason);
+      });
+
+      socketInstance.on('connect_error', (error) => {
+        console.error("Socket.IO connection error:", error);
+      });
+    };
+
+    connect();
+
+    return () => {
+      if (socketInstance) {
+        socketInstance.disconnect();
+      }
+    };
+  }, []);
+
+  return socket;
+};

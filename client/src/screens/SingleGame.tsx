@@ -88,9 +88,7 @@ export const SingleGame = () => {
     if (!socket) {
       return;
     }
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
+    socket.on('message', (message) => {
       switch (message.type) {
         case INIT_GAME:
           if (message.payload) {
@@ -105,11 +103,7 @@ export const SingleGame = () => {
           console.log("Game Over");
           break;
       }
-    };
-
-    return () => {
-      socket.close();
-    };
+    });
   }, [socket]);
 
   useEffect(() => {
@@ -277,7 +271,7 @@ export const SingleGame = () => {
     const totalTime = parseTimeInput(timeInput);
     setTotalTime(totalTime);
     if (socket) {
-      socket.send(
+      socket?.emit(
         JSON.stringify({
           type: INIT_GAME,
           mode: SINGLE_PLAYER,

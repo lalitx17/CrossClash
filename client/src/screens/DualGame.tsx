@@ -54,7 +54,7 @@ const data = {
 export const DualGame = () => {
   const socket = useSocket();
   const [started, setStarted] = useState(false);
-  const [crosswordData, setcrosswordData] = useState<CrosswordData>(data);
+  const [crosswordData, setCrosswordData] = useState<CrosswordData>(data);
   const [time, setTime] = useState<number>(0);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [dialogBoxAppears, setDialogBoxAppears] = useState<boolean>(false);
@@ -88,40 +88,34 @@ export const DualGame = () => {
   const redirect = useNavigate();
 
   useEffect(() => {
-    if (!socket) {
-      return;
+    if (socket) {
+      socket.on('message', (message) => {
+        switch (message.type) {
+          case INIT_GAME:
+            if (message.payload) {
+              console.log(message.payload.data);
+              setCrosswordData(message.payload.data);
+              setStarted(true);
+            } else {
+              console.error('Invalid message payload');
+            }
+            break;
+          case GAME_OVER:
+            console.log('Game Over');
+            break;
+          case GAME_COMPLETED:
+            setOpponentWon(true);
+            setDialogBoxAppears(true);
+            break;
+          case SCORE_UPDATE:
+            console.log(message.increment);
+            setOpponentScore((prevScore) => prevScore + parseInt(message.increment));
+            break;
+          default:
+            console.log('Unknown message type');
+        }
+      });
     }
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      switch (message.type) {
-        case INIT_GAME:
-          if (message.payload) {
-            console.log(message.payload.data);
-            setcrosswordData(message.payload.data);
-            setStarted(true);
-          } else {
-            console.error("Invalid message payload");
-          }
-          break;
-        case GAME_OVER:
-          console.log("Game Over");
-          break;
-        case GAME_COMPLETED:
-          setOpponentWon(true);
-          setDialogBoxAppears(true);
-          break;
-        case SCORE_UPDATE:
-          console.log(message.increment);
-          setOpponentScore(
-            (prevScore) => prevScore + parseInt(message.increment)
-          );
-      }
-    };
-
-    return () => {
-      socket.close();
-    };
   }, [socket]);
 
   useEffect(() => {
@@ -313,7 +307,7 @@ export const DualGame = () => {
         <div className="flex w-2/5 mx-auto">
           <Button
             onClick={() => {
-              socket.send(
+              socket?.emit(
                 JSON.stringify({
                   type: INIT_GAME,
                   mode: DUAL_PLAYER,

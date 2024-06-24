@@ -62,7 +62,7 @@ const data = {
 export const TeamGame = () => {
   const socket = useSocket();
   const [started, setStarted] = useState(false);
-  const [crosswordData, setcrosswordData] = useState<CrosswordData>(data);
+  const [crosswordData, setCrosswordData] = useState<CrosswordData>(data);
   const [time, setTime] = useState<number>(0);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [dialogBoxAppears, setDialogBoxAppears] = useState<boolean>(false);
@@ -105,41 +105,35 @@ export const TeamGame = () => {
     if (!socket) {
       return;
     }
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
 
-      switch (message.type) {
-        case INIT_GAME:
-          if (message.payload) {
-            console.log(message.payload.data);
-            setcrosswordData(message.payload.data);
-            setStarted(true);
-          } else {
-            console.error("Invalid message payload");
-          }
-          break;
-        case STATUS_UPDATE:
-          setTeamRed(message.data.teamRed);
-          setTeamBlue(message.data.teamBlue);
-          break;
-        case GAME_OVER:
-          setOpponentWon(true);
-          setDialogBoxAppears(true);
-          break;
-        case OPP_SCORE_UPDATE:
-          console.log(message.payload.incrementAmount);
-          setOpponentScore(
-            (prevScore) => prevScore + parseInt(message.payload.incrementAmount)
-          );
-          break;
-        case OWN_SCORE_UPDATE:
-          setPlayerScore(
-            (prevScore) => prevScore + parseInt(message.payload.incrementAmount)
-          )
-          answeredByTeammates(message.payload.answer, message.payload.direction, message.payload.number, parseInt(message.payload.row), parseInt(message.payload.col));
-          break;
+    socket.on(INIT_GAME, (message) => {
+      if (message.payload) {
+        console.log(message.payload.data);
+        setCrosswordData(message.payload.data); 
+        setStarted(true);
+      } else {
+        console.error("Invalid message payload");
       }
-    };
+    });
+
+    socket.on(STATUS_UPDATE, (message) => {
+      setTeamRed(message.data.teamRed);
+      setTeamBlue(message.data.teamBlue);
+    });
+
+    socket.on(GAME_OVER, () => {
+      setOpponentWon(true);
+      setDialogBoxAppears(true);
+    });
+
+    socket.on(OPP_SCORE_UPDATE, (message) => {
+      setOpponentScore((prevScore) => prevScore + parseInt(message.payload.incrementAmount));
+    });
+
+    socket.on(OWN_SCORE_UPDATE, (message) => {
+      setPlayerScore((prevScore) => prevScore + parseInt(message.payload.incrementAmount));
+      answeredByTeammates(message.payload.answer, message.payload.direction, message.payload.number, parseInt(message.payload.row), parseInt(message.payload.col));
+    });
 
     return () => {
       socket.close();
@@ -147,17 +141,14 @@ export const TeamGame = () => {
   }, [socket]);
 
   useEffect(() => {
-    socket?.send(
-      JSON.stringify({
-        mode: TEAM_GAME,
-        type: NEW_PLAYER,
-        data: {
-          gameId: gameId,
-        },
-      })
-    );
-  });
-
+    socket?.emit(NEW_PLAYER, {
+      mode: TEAM_GAME,
+      type: NEW_PLAYER,
+      data: {
+        gameId: gameId,
+      },
+    });
+  }, [socket, gameId]);
   useEffect(() => {
     if (started) {
       timerRef.current = setInterval(() => {
@@ -212,7 +203,7 @@ export const TeamGame = () => {
     answer: string
   ) => {
     if (clueStatus[`${direction}-${number}`] !== "correct") {
-        socket?.send(
+        socket?.emit(
           JSON.stringify({
             mode: TEAM_GAME,
             type: SCORE_UPDATE,
@@ -391,7 +382,7 @@ export const TeamGame = () => {
         setIsLeader(true);
       }
       setTeamRed((prevTeam) => [...prevTeam, playerName]);
-      socket?.send(
+      socket?.emit(
         JSON.stringify({
           mode: TEAM_GAME,
           type: PLAYER_JOINED,
@@ -407,7 +398,7 @@ export const TeamGame = () => {
         setIsLeader(true);
       }
       setTeamBlue((prevTeam) => [...prevTeam, playerName]);
-      socket?.send(
+      socket?.emit(
         JSON.stringify({
           mode: TEAM_GAME,
           type: PLAYER_JOINED,
@@ -463,7 +454,7 @@ export const TeamGame = () => {
               {isLeader && (
                 <Button
                   onClick={() => {
-                    socket?.send(
+                    socket?.emit(
                       JSON.stringify({
                         mode: TEAM_GAME,
                         type: INIT_GAME,

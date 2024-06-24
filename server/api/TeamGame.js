@@ -19,20 +19,20 @@ class TeamGame {
         else if (this.loadGamePressed.length === 1 && this.loadGamePressed[0].teamName !== teamName) {
             this.loadGamePressed.push(leader);
             this.teamBlue.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.INIT_GAME,
                     payload: {
                         data: crosswordData_1.crosswordData2,
                     },
-                }));
+                });
             });
             this.teamRed.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.INIT_GAME,
                     payload: {
                         data: crosswordData_1.crosswordData2,
                     },
-                }));
+                });
             });
         }
     }
@@ -47,26 +47,26 @@ class TeamGame {
         this.broadcastTeamInfo();
     }
     statusUpdater(newPlayer) {
-        newPlayer.send(JSON.stringify({
+        newPlayer.emit('message', {
             type: messages_1.STATUS_UPDATE,
             data: {
                 teamRed: this.teamRed.map((member) => member.playerName),
                 teamBlue: this.teamBlue.map((member) => member.playerName),
             },
-        }));
+        });
     }
     scoreUpdate(teamName, incrementAmount, answer, direction, number, row, col) {
         if (teamName === messages_1.RED) {
             this.teamBlue.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.OPP_SCORE_UPDATE,
                     payload: {
                         incrementAmount: incrementAmount,
                     },
-                }));
+                });
             });
             this.teamRed.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.OWN_SCORE_UPDATE,
                     payload: {
                         incrementAmount: incrementAmount,
@@ -76,12 +76,12 @@ class TeamGame {
                         row: row,
                         col: col,
                     },
-                }));
+                });
             });
         }
         else if (teamName === messages_1.BLUE) {
             this.teamBlue.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.OWN_SCORE_UPDATE,
                     payload: {
                         incrementAmount: incrementAmount,
@@ -91,52 +91,52 @@ class TeamGame {
                         row: row,
                         col: col,
                     },
-                }));
+                });
             });
             this.teamRed.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.OPP_SCORE_UPDATE,
                     payload: {
                         incrementAmount: incrementAmount,
                     },
-                }));
+                });
             });
         }
     }
     endGame(teamName) {
         if (teamName === messages_1.RED) {
             this.teamBlue.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.GAME_OVER,
-                }));
+                });
             });
         }
         else if (teamName === messages_1.BLUE) {
             this.teamRed.forEach((member) => {
-                member.socket.send(JSON.stringify({
+                member.socket.emit('message', {
                     type: messages_1.GAME_OVER,
-                }));
+                });
             });
         }
     }
     broadcastTeamInfo() {
         this.teamBlue.forEach((member) => {
-            member.socket.send(JSON.stringify({
+            member.socket.emit('message', {
                 type: messages_1.STATUS_UPDATE,
                 data: {
                     teamRed: this.teamRed.map((member) => member.playerName),
                     teamBlue: this.teamBlue.map((member) => member.playerName),
                 },
-            }));
+            });
         });
         this.teamRed.forEach((member) => {
-            member.socket.send(JSON.stringify({
+            member.socket.emit('message', {
                 type: messages_1.STATUS_UPDATE,
                 data: {
                     teamRed: this.teamRed.map((member) => member.playerName),
                     teamBlue: this.teamBlue.map((member) => member.playerName),
                 },
-            }));
+            });
         });
     }
 }

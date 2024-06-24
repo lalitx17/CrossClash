@@ -12,12 +12,15 @@
   "dependencies": {
     "@lit17/react-crossword": "^5.2.8",
     "@tailwindcss/typography": "^0.5.13",
+    "@types/socket.io-client": "^3.0.0",
     "file-saver": "^2.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-input-mask": "^2.0.4",
     "react-router-dom": "^6.23.1",
-    "short-uuid": "^5.2.0"
+    "short-uuid": "^5.2.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@types/node": "^20.14.8",

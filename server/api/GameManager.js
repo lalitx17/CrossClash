@@ -21,13 +21,13 @@ class GameManager {
         this.users = this.users.filter((user) => user !== socket);
     }
     addHandler(socket) {
-        socket.on("message", (data) => {
-            const message = JSON.parse(data.toString());
+        socket.on('message', (data) => {
+            const message = typeof data === 'string' ? JSON.parse(data) : data;
             if (message.mode === messages_1.SINGLE_PLAYER) {
                 if (message.type === messages_1.INIT_GAME) {
                     const singlePlayerGame = new SinglePlayerGame_1.SinglePlayerGame(socket);
                     this.singlePlayerGames.push(singlePlayerGame);
-                    console.log("Game Started");
+                    console.log('Game Started');
                 }
             }
             else if (message.mode === messages_1.DUAL_PLAYER) {
@@ -36,11 +36,11 @@ class GameManager {
                         const dualPlayerGame = new DualPlayerGame_1.DualPlayerGame(this.pendingUser, socket);
                         this.dualPlayerGames.push(dualPlayerGame);
                         this.pendingUser = null;
-                        console.log("Game started");
+                        console.log('Game started');
                     }
                     else {
                         this.pendingUser = socket;
-                        console.log("Waiting for another player");
+                        console.log('Waiting for another player');
                     }
                 }
                 else if (message.type === messages_1.GAME_COMPLETED) {
@@ -55,16 +55,13 @@ class GameManager {
                         game.scoreUpdate(socket, message.incrementAmount);
                     }
                 }
-                //TEAM GAME
             }
             else if (message.mode === messages_1.TEAM_GAME) {
-                //fired when the leader 
                 if (message.type === messages_1.INIT_GAME) {
                     const game = this.findTeamGame(message.data.gameId);
                     if (game) {
                         game.gameStarter(socket, message.data.teamName);
                     }
-                    //fired when the a new player joins the game
                 }
                 else if (message.type === messages_1.PLAYER_JOINED) {
                     const game = this.findTeamGame(message.data.gameId);
@@ -72,11 +69,10 @@ class GameManager {
                         game.addMembers(socket, message.data.teamName, message.data.playerName);
                     }
                     else {
-                        const game = new TeamGame_1.TeamGame(message.data.gameId);
-                        game.addMembers(socket, message.data.teamName, message.data.playerName);
-                        this.teamGames.push(game);
+                        const newGame = new TeamGame_1.TeamGame(message.data.gameId);
+                        newGame.addMembers(socket, message.data.teamName, message.data.playerName);
+                        this.teamGames.push(newGame);
                     }
-                    //fired when new player enter the link
                 }
                 else if (message.type === messages_1.NEW_PLAYER) {
                     const game = this.findTeamGame(message.data.gameId);

@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ws_1 = require("ws");
 const http_1 = __importDefault(require("http"));
+const socket_io_1 = require("socket.io");
 const GameManager_1 = require("./GameManager");
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 // Create an HTTP server
@@ -20,25 +20,18 @@ const server = http_1.default.createServer((req, res) => {
       <body>
         <h1>WebSocket Test</h1>
         <div id="message"></div>
+        <script src="/socket.io/socket.io.js"></script>
         <script>
-          const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-          const ws = new WebSocket(wsProtocol + '//' + window.location.host);
-          
-          ws.onopen = function() {
-            console.log('WebSocket connection opened');
-          };
-          
-          ws.onmessage = function(event) {
-            document.getElementById('message').innerText = event.data;
-          };
-          
-          ws.onclose = function() {
-            console.log('WebSocket connection closed');
-          };
-          
-          ws.onerror = function(error) {
-            console.error('WebSocket error:', error);
-          };
+          const socket = io();
+          socket.on('connect', () => {
+            console.log('Socket.IO connection opened');
+          });
+          socket.on('message', (data) => {
+            document.getElementById('message').innerText = data;
+          });
+          socket.on('disconnect', () => {
+            console.log('Socket.IO connection closed');
+          });
         </script>
       </body>
       </html>
@@ -49,17 +42,13 @@ const server = http_1.default.createServer((req, res) => {
         res.end('Not Found');
     }
 });
-// Create a WebSocket server on top of the HTTP server
-const wss = new ws_1.WebSocketServer({ server });
+// Create a Socket.IO server on top of the HTTP server
+const io = new socket_io_1.Server(server);
 const gameManager = new GameManager_1.GameManager();
-wss.on('connection', function connection(ws) {
-    console.log('A new client connected');
-    gameManager.addUser(ws);
-    ws.send('Welcome! You are connected to the WebSocket server.');
-    ws.on('close', () => {
-        console.log('A client disconnected');
-        gameManager.removeUser(ws);
-    });
+io.on('connection', (socket) => {
+    gameManager.addUser(socket);
+    socket.emit('message', 'Welcome! You are connected to the Socket.IO server.');
+    socket.on('disconnect', () => gameManager.removeUser(socket));
 });
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);

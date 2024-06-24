@@ -1,49 +1,49 @@
-import { WebSocket } from "ws";
-import { GAME_OVER, INIT_GAME, GAME_COMPLETED, SCORE_UPDATE } from "./messages";
-import { crosswordData, crosswordData2 } from "./crosswordData";
+import { Socket } from 'socket.io';
+import { GAME_OVER, INIT_GAME, GAME_COMPLETED, SCORE_UPDATE } from './messages';
+import { crosswordData, crosswordData2 } from './crosswordData';
 
 export class DualPlayerGame {
-    public player1: WebSocket;
-    public player2: WebSocket;
+    public player1: Socket;
+    public player2: Socket;
 
-    constructor(player1: WebSocket, player2: WebSocket) {
+    constructor(player1: Socket, player2: Socket) {
         this.player1 = player1;
         this.player2 = player2;
-        this.player1.send(JSON.stringify({
+        this.player1.emit('message', {
             type: INIT_GAME,
             payload: {
                 data: crosswordData2
             }
-        }));
-        this.player2.send(JSON.stringify({
+        });
+        this.player2.emit('message', {
             type: INIT_GAME,
             payload: {
                 data: crosswordData2
             }
-        }));
+        });
     }
-    public endGame(endingPlayer: WebSocket) {
+
+    public endGame(endingPlayer: Socket) {
         const opponent = this.opponentFinder(endingPlayer);
-    
+
         if (opponent) {
-            opponent.send(JSON.stringify({
+            opponent.emit('message', {
                 type: GAME_COMPLETED
-            }));
+            });
         }
     }
 
-    public scoreUpdate(scoringPlayer: WebSocket, incrementAmount: string){
+    public scoreUpdate(scoringPlayer: Socket, incrementAmount: string) {
         const opponent = this.opponentFinder(scoringPlayer);
-        if (opponent){
-            opponent.send(JSON.stringify({
-                type:SCORE_UPDATE,
+        if (opponent) {
+            opponent.emit('message', {
+                type: SCORE_UPDATE,
                 increment: incrementAmount
-            }))
+            });
         }
-
     }
 
-    private opponentFinder(player: WebSocket): WebSocket | undefined {
+    private opponentFinder(player: Socket): Socket | undefined {
         return (player === this.player1) ? this.player2 : this.player1;
     }
 }
