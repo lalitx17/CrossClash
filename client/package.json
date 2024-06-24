@@ -20,6 +20,7 @@
     "short-uuid": "^5.2.0"
   },
   "devDependencies": {
+    "@types/node": "^20.14.8",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@types/react-input-mask": "^3.0.5",
