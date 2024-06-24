@@ -43,7 +43,13 @@ const server = http_1.default.createServer((req, res) => {
     }
 });
 // Create a Socket.IO server on top of the HTTP server
-const io = new socket_io_1.Server(server);
+const io = new socket_io_1.Server(server, {
+    cors: {
+        origin: "https://cross-clash-client.vercel.app",
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 const gameManager = new GameManager_1.GameManager();
 io.on('connection', (socket) => {
     gameManager.addUser(socket);
