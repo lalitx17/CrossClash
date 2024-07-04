@@ -123,6 +123,10 @@ export const TeamGame = () => {
           break;
         case GAME_OVER:
           setOpponentWon(true);
+          setTeamBlue([]);
+          setTeamRed([]);
+          setPlayerName("");
+          setIsLeader(false);
           setDialogBoxAppears(true);
           break;
         case OPP_SCORE_UPDATE:
@@ -205,6 +209,10 @@ export const TeamGame = () => {
           teamName: isPlayerInTeam(playerName),
         },
       });
+      setTeamBlue([]);
+      setTeamRed([]);
+      setPlayerName("");
+      setIsLeader(false);
     }
   };
 

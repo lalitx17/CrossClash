@@ -37,7 +37,7 @@ export class TeamGame {
                 member.socket.emit('message', {
                     type: INIT_GAME,
                     payload: {
-                        data: crosswordData,
+                        data: crosswordData2,
                     },
                 });
             });
@@ -45,7 +45,7 @@ export class TeamGame {
                 member.socket.emit('message', {
                     type: INIT_GAME,
                     payload: {
-                        data: crosswordData,
+                        data: crosswordData2,
                     },
                 });
             });
