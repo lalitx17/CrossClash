@@ -64,12 +64,7 @@ Once the server and client are running, open your browser and navigate to `http:
 
 Check out this video to see CrossClash in action:
 
-![CrossClash Demo](client/public/videos/crossclash_demo.mp4)
-
-<video width="640" height="360" controls>
-  <source src="path/to/your/crossclash_demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+[![CrossClash Demo](https://img.youtube.com/vi/MxbsRyhvweo/0.jpg)](https://www.youtube.com/watch?v=MxbsRyhvweo "CrossClash Demo")
 
 ## Contributing
 
