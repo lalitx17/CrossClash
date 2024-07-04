@@ -10,7 +10,7 @@ export class SinglePlayerGame {
         this.player1.emit('message', {
             type: INIT_GAME,
             payload: {
-                data: crosswordData
+                data: crosswordData2
             }
         });
     }
