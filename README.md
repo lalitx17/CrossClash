@@ -64,7 +64,11 @@ Once the server and client are running, open your browser and navigate to `http:
 
 Check out this video to see CrossClash in action:
 
-[![CrossClash Demo](https://img.youtube.com/vi/MxbsRyhvweo/0.jpg)](https://www.youtube.com/watch?v=MxbsRyhvweo "CrossClash Demo")
+
+<a href="https://www.youtube.com/watch?v=MxbsRyhvweo" target="_blank">
+ <img src="https://img.youtube.com/vi/MxbsRyhvweo/0.jpg" alt="CrossClash Demo" width="600" height="400" />
+</a>
+
 
 ## Contributing
 
