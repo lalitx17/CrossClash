@@ -296,7 +296,7 @@ export const SingleGame = () => {
           mask="99:99:99"
           value={timeInput}
           onChange={handleTimeInputChange}
-          className="mb-4 p-2 border rounded w-[20em] text-center"
+          className="mb-4 p-2 border rounded text-center"
           placeholder="HH:MM:SS"
         />
         <Button onClick={handlePlayClick}>Play</Button>

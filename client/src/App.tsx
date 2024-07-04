@@ -21,7 +21,7 @@ export default function App() {
   return (
     <>
       <div>
-        <div className="flex flex-row flex-wrap justify-around py-[10em] bg-white">
+        <div className="flex flex-row flex-wrap justify-around my-10 bg-white gap-y-14">
           <div className="flex flex-col justify-center gap-y-5">
             <div className="text-black font-bold md:text-4xl mb-1">
               Battle of the words.

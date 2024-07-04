@@ -418,8 +418,8 @@ export const TeamGame = () => {
     <div className="py-14">
       {!started && (
         <>
-        <div className="flex flex-row justify-center items-start align mx-8">
-          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+        <div className="flex flex-row flex-wrap gap-y-10 justify-center items-start align mx-8">
+          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-2">
             <label className="text-white mb-2 pt-2 text-lg">Red Team</label>
             <ul className="list-disc list-inside text-white">
               {teamRed.map((player, index) => (
@@ -432,7 +432,7 @@ export const TeamGame = () => {
               <CopyButton gameId={gameId} />
             </div>
 
-            <div className="bg-primaryBackground flex flex-col md:w-3/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+            <div className="bg-primaryBackground flex flex-col md:w-3/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-1">
               <div className="flex w-full mb-4">
                 <label className="text-white mb-2 pt-2 text-lg">Name</label>
                 <input
@@ -476,7 +476,7 @@ export const TeamGame = () => {
               )}
             </div>
           </div>
-          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
+          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-3">
             <label className="text-white mb-2 pt-2 text-lg">Blue Team</label>
             <ul className="list-disc list-inside text-white">
               {teamBlue.map((player, index) => (
