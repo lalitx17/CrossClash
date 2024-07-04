@@ -8,6 +8,7 @@ import Layout from './Layout.tsx'
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { TeamGame } from './screens/TeamGame.tsx'
+import { About } from './screens/About.tsx'
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: '/teamgame/:gameId', 
         element: <TeamGame />
+      }, 
+      {
+        path: '/about', 
+        element: <About />
       }
     ],
   },

@@ -287,8 +287,9 @@ export const SingleGame = () => {
   if (!socket) return <div>Connecting...</div>;
 
   return (
-    <div className="py-14">
+    <div className="flex flex-col min-h-screen py-14">
       {!started && (
+        <div>
         <div className="bg-primaryBackground flex flex-col md:w-2/5 w-[95%] mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
         <label className="text-white mb-2 text-lg">Set Time</label>
         <InputMask
@@ -299,6 +300,7 @@ export const SingleGame = () => {
           placeholder="HH:MM:SS"
         />
         <Button onClick={handlePlayClick}>Play</Button>
+      </div>
       </div>
       )}
       {started && (

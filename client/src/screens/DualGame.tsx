@@ -302,9 +302,10 @@ export const DualGame = () => {
   if (!socket) return <div>Connecting...</div>;
 
   return (
-    <div className="py-14">
+    <div>
       {!started && (
-        <div className="flex w-2/5 mx-auto">
+        <>
+        <div className="flex w-2/5 mx-auto pt-14">
           <Button
             onClick={() => {
               socket?.emit(
@@ -318,6 +319,7 @@ export const DualGame = () => {
             Play
           </Button>
         </div>
+        </>
       )}
       {started && (
         <div className="flex flex-row justify-between mx-auto w-[95%] gap-x-10">

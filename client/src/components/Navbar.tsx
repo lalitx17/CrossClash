@@ -11,20 +11,18 @@ const Navbar: React.FC = () => {
     setIsMenuOpen(false);
   };
 
+
   return (
     <div className="relative">
       {/* Navbar */}
       <nav className="bg-primaryBackground py-6 px-10 flex justify-between items-center">
         <div className="text-white font-bold md:text-4xl mb-1">CrossClash</div>
         <div className="hidden md:flex space-x-4 mr-14">
-          <a href="#" className="text-gray-300 hover:text-white">
+          <a href="/" className="text-gray-300 hover:text-white">
             Home
           </a>
-          <a href="#" className="text-gray-300 hover:text-white">
+          <a href="/about" className="text-gray-300 hover:text-white">
             About
-          </a>
-          <a href="#" className="text-gray-300 hover:text-white">
-            Contact
           </a>
         </div>
         <div className="md:hidden">
@@ -72,11 +70,8 @@ const Navbar: React.FC = () => {
               <a href="/" className="text-white font-semibold hover:text-gray-600">
                 Home
               </a>
-              <a href="#" className="text-white font-semibold hover:text-gray-600">
+              <a href="/about" className="text-white font-semibold hover:text-gray-600">
                 About
-              </a>
-              <a href="#" className="text-white font-semibold hover:text-gray-600">
-                Contact
               </a>
             </div>
           </div>

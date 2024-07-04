@@ -417,6 +417,7 @@ export const TeamGame = () => {
   return (
     <div className="py-14">
       {!started && (
+        <>
         <div className="flex flex-row justify-center items-start align mx-8">
           <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center">
             <label className="text-white mb-2 pt-2 text-lg">Red Team</label>
@@ -484,6 +485,7 @@ export const TeamGame = () => {
             </ul>
           </div>
         </div>
+        </>
       )}
       {started && (
         <div className="flex flex-row justify-between mx-auto w-[95%] gap-x-10">
