@@ -14,6 +14,18 @@ Step into a world where words come to life and every puzzle is a battleground. W
   
 - **👥 Team vs. Team:** Rally your friends and form a team of crossword champions. Battle it out against another team and show them who really rules the word world. It's teamwork and tactics combined!
 
+
+
+## Demo Video
+
+Check out this video to see CrossClash in action:
+
+
+<a href="https://www.youtube.com/watch?v=MxbsRyhvweo" target="_blank">
+ <img src="https://img.youtube.com/vi/MxbsRyhvweo/0.jpg" alt="CrossClash Demo" width="600" height="400" />
+</a>
+
+
 ## Stacks Used
 
 - React
@@ -59,15 +71,6 @@ Make sure you have the following installed on your system:
 ## Usage
 
 Once the server and client are running, open your browser and navigate to `http://localhost:5173` to start playing CrossClash.
-
-## Demo Video
-
-Check out this video to see CrossClash in action:
-
-
-<a href="https://www.youtube.com/watch?v=MxbsRyhvweo" target="_blank">
- <img src="https://img.youtube.com/vi/MxbsRyhvweo/0.jpg" alt="CrossClash Demo" width="600" height="400" />
-</a>
 
 
 ## Contributing
