@@ -12,13 +12,13 @@ export class DualPlayerGame {
         this.player1.emit('message', {
             type: INIT_GAME,
             payload: {
-                data: crosswordData2
+                data: crosswordData
             }
         });
         this.player2.emit('message', {
             type: INIT_GAME,
             payload: {
-                data: crosswordData2
+                data: crosswordData
             }
         });
     }

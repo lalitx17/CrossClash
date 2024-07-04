@@ -89,7 +89,7 @@ export const DualGame = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('message', (message) => {
+      socket.on("message", (message) => {
         switch (message.type) {
           case INIT_GAME:
             if (message.payload) {
@@ -97,11 +97,11 @@ export const DualGame = () => {
               setCrosswordData(message.payload.data);
               setStarted(true);
             } else {
-              console.error('Invalid message payload');
+              console.error("Invalid message payload");
             }
             break;
           case GAME_OVER:
-            console.log('Game Over');
+            console.log("Game Over");
             break;
           case GAME_COMPLETED:
             setOpponentWon(true);
@@ -109,10 +109,12 @@ export const DualGame = () => {
             break;
           case SCORE_UPDATE:
             console.log(message.increment);
-            setOpponentScore((prevScore) => prevScore + parseInt(message.increment));
+            setOpponentScore(
+              (prevScore) => prevScore + parseInt(message.increment)
+            );
             break;
           default:
-            console.log('Unknown message type');
+            console.log("Unknown message type");
         }
       });
     }
@@ -155,12 +157,7 @@ export const DualGame = () => {
         }
       }
       if (socket) {
-        socket.send(
-          JSON.stringify({
-            type: GAME_COMPLETED,
-            mode: DUAL_PLAYER,
-          })
-        );
+        socket.emit("message", { mode: DUAL_PLAYER, type: GAME_COMPLETED });
       }
     }
   };
@@ -173,13 +170,11 @@ export const DualGame = () => {
     if (!clueStatus[`${direction}-${number}`]) {
       setPlayerScore((prevScore) => prevScore + answer.length);
       if (socket) {
-        socket.send(
-          JSON.stringify({
-            mode: DUAL_PLAYER,
-            type: SCORE_UPDATE,
-            incrementAmount: `${answer.length}`,
-          })
-        );
+        socket.emit("message", {
+          mode: DUAL_PLAYER,
+          type: SCORE_UPDATE,
+          incrementAmount: `${answer.length}`,
+        });
       }
     }
     console.log("Correct Answer Yay", direction, number, answer);
@@ -305,20 +300,15 @@ export const DualGame = () => {
     <div>
       {!started && (
         <>
-        <div className="flex w-2/5 mx-auto pt-14">
-          <Button
-            onClick={() => {
-              socket?.emit(
-                JSON.stringify({
-                  type: INIT_GAME,
-                  mode: DUAL_PLAYER,
-                })
-              );
-            }}
-          >
-            Play
-          </Button>
-        </div>
+          <div className="flex w-2/5 mx-auto pt-14">
+            <Button
+              onClick={() => {
+                socket.emit("message", { mode: DUAL_PLAYER, type: INIT_GAME });
+              }}
+            >
+              Play
+            </Button>
+          </div>
         </>
       )}
       {started && (

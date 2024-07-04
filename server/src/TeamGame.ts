@@ -37,7 +37,7 @@ export class TeamGame {
                 member.socket.emit('message', {
                     type: INIT_GAME,
                     payload: {
-                        data: crosswordData2,
+                        data: crosswordData,
                     },
                 });
             });
@@ -45,7 +45,7 @@ export class TeamGame {
                 member.socket.emit('message', {
                     type: INIT_GAME,
                     payload: {
-                        data: crosswordData2,
+                        data: crosswordData,
                     },
                 });
             });
@@ -60,6 +60,8 @@ export class TeamGame {
             this.teamBlue.push(member);
         }
         this.broadcastTeamInfo();
+        console.log("Team Blue", this.teamBlue);
+        console.log("Team Red", this.teamRed);
     }
 
     public statusUpdater(newPlayer: Socket) {

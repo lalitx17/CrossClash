@@ -19,7 +19,7 @@ import {
   NEW_PLAYER,
   STATUS_UPDATE,
   OPP_SCORE_UPDATE,
-  OWN_SCORE_UPDATE
+  OWN_SCORE_UPDATE,
 } from "../assets/messages.ts";
 import { CrosswordProviderImperative } from "@lit17/react-crossword";
 import { DialogBox } from "./dialogBox.tsx";
@@ -106,33 +106,45 @@ export const TeamGame = () => {
       return;
     }
 
-    socket.on(INIT_GAME, (message) => {
-      if (message.payload) {
-        console.log(message.payload.data);
-        setCrosswordData(message.payload.data); 
-        setStarted(true);
-      } else {
-        console.error("Invalid message payload");
+    socket.on("message", (message) => {
+      switch (message.type) {
+        case INIT_GAME:
+          if (message.payload) {
+            console.log(message.payload.data);
+            setCrosswordData(message.payload.data);
+            setStarted(true);
+          } else {
+            console.error("Invalid message payload");
+          }
+          break;
+        case STATUS_UPDATE:
+          setTeamRed(message.data.teamRed);
+          setTeamBlue(message.data.teamBlue);
+          break;
+        case GAME_OVER:
+          setOpponentWon(true);
+          setDialogBoxAppears(true);
+          break;
+        case OPP_SCORE_UPDATE:
+          setOpponentScore(
+            (prevScore) => prevScore + parseInt(message.payload.incrementAmount)
+          );
+          break;
+        case OWN_SCORE_UPDATE:
+          setPlayerScore(
+            (prevScore) => prevScore + parseInt(message.payload.incrementAmount)
+          );
+          answeredByTeammates(
+            message.payload.answer,
+            message.payload.direction,
+            message.payload.number,
+            parseInt(message.payload.row),
+            parseInt(message.payload.col)
+          );
+          break;
+        default:
+          console.log("Unknown message type");
       }
-    });
-
-    socket.on(STATUS_UPDATE, (message) => {
-      setTeamRed(message.data.teamRed);
-      setTeamBlue(message.data.teamBlue);
-    });
-
-    socket.on(GAME_OVER, () => {
-      setOpponentWon(true);
-      setDialogBoxAppears(true);
-    });
-
-    socket.on(OPP_SCORE_UPDATE, (message) => {
-      setOpponentScore((prevScore) => prevScore + parseInt(message.payload.incrementAmount));
-    });
-
-    socket.on(OWN_SCORE_UPDATE, (message) => {
-      setPlayerScore((prevScore) => prevScore + parseInt(message.payload.incrementAmount));
-      answeredByTeammates(message.payload.answer, message.payload.direction, message.payload.number, parseInt(message.payload.row), parseInt(message.payload.col));
     });
 
     return () => {
@@ -141,7 +153,7 @@ export const TeamGame = () => {
   }, [socket]);
 
   useEffect(() => {
-    socket?.emit(NEW_PLAYER, {
+    socket?.emit("message", {
       mode: TEAM_GAME,
       type: NEW_PLAYER,
       data: {
@@ -149,6 +161,7 @@ export const TeamGame = () => {
       },
     });
   }, [socket, gameId]);
+
   useEffect(() => {
     if (started) {
       timerRef.current = setInterval(() => {
@@ -184,16 +197,14 @@ export const TeamGame = () => {
           clearInterval(timerRef.current);
         }
       }
-        socket?.send(
-          JSON.stringify({
-            type: GAME_COMPLETED,
-            mode: TEAM_GAME,
-            payload: {
-              gameId: gameId,
-              teamName: isPlayerInTeam(playerName),
-            }
-          })
-        );
+      socket?.emit("message", {
+        type: GAME_COMPLETED,
+        mode: TEAM_GAME,
+        payload: {
+          gameId: gameId,
+          teamName: isPlayerInTeam(playerName),
+        },
+      });
     }
   };
 
@@ -203,22 +214,20 @@ export const TeamGame = () => {
     answer: string
   ) => {
     if (clueStatus[`${direction}-${number}`] !== "correct") {
-        socket?.emit(
-          JSON.stringify({
-            mode: TEAM_GAME,
-            type: SCORE_UPDATE,
-            payload: {
-              gameId: gameId,
-              teamName: isPlayerInTeam(playerName),
-              incrementAmount: `${answer.length}`,
-              answer: answer, 
-              direction: `${direction}`,
-              number: number,
-              row: `${currentRow}`,
-              col: `${currentCol}`, 
-            }
-          })
-        );
+      socket?.emit("message", {
+        mode: TEAM_GAME,
+        type: SCORE_UPDATE,
+        payload: {
+          gameId: gameId,
+          teamName: isPlayerInTeam(playerName),
+          incrementAmount: `${answer.length}`,
+          answer: answer,
+          direction: `${direction}`,
+          number: number,
+          row: `${currentRow}`,
+          col: `${currentCol}`,
+        },
+      });
     }
     setHighlightBgColor("lightgreen");
     setFocusBgColor("green");
@@ -244,7 +253,7 @@ export const TeamGame = () => {
 
   const cellChange = (
     direction: Direction,
-    number: string | undefined,
+    number: string | undefined
     //row: number,
     //col: number
   ) => {
@@ -312,30 +321,28 @@ export const TeamGame = () => {
     setAnswer("");
   };
 
-  const answeredByTeammates = (answer: string, direction: string, number:string, row: number, col: number) => {
-    console.log(number,direction, row, col, answer);
+  const answeredByTeammates = (
+    answer: string,
+    direction: string,
+    number: string,
+    row: number,
+    col: number
+  ) => {
+    console.log(number, direction, row, col, answer);
     if (direction === "across") {
       for (let i = col; i < col + answer.length; i++) {
-        crosswordProviderRef.current?.setGuess(
-          row,
-          i,
-          answer[i - col]
-        );
+        crosswordProviderRef.current?.setGuess(row, i, answer[i - col]);
       }
     } else if (direction === "down") {
       for (let i = row; i < row + answer.length; i++) {
-        crosswordProviderRef.current?.setGuess(
-          i,
-          col,
-          answer[i - row]
-        );
+        crosswordProviderRef.current?.setGuess(i, col, answer[i - row]);
       }
     }
     setClueStatus((prevStatus) => ({
       ...prevStatus,
       [`${direction}-${number}`]: "correct",
     }));
-  }
+  };
 
   useEffect(() => {
     if (submittedAnswer) {
@@ -382,33 +389,29 @@ export const TeamGame = () => {
         setIsLeader(true);
       }
       setTeamRed((prevTeam) => [...prevTeam, playerName]);
-      socket?.emit(
-        JSON.stringify({
-          mode: TEAM_GAME,
-          type: PLAYER_JOINED,
-          data: {
-            teamName: RED,
-            gameId: gameId,
-            playerName: playerName,
-          },
-        })
-      );
+      socket?.emit("message", {
+        mode: TEAM_GAME,
+        type: PLAYER_JOINED,
+        data: {
+          teamName: RED,
+          gameId: gameId,
+          playerName: playerName,
+        },
+      });
     } else if (team === "blue") {
       if (teamBlue.length === 0) {
         setIsLeader(true);
       }
       setTeamBlue((prevTeam) => [...prevTeam, playerName]);
-      socket?.emit(
-        JSON.stringify({
-          mode: TEAM_GAME,
-          type: PLAYER_JOINED,
-          data: {
-            teamName: BLUE,
-            gameId: gameId,
-            playerName: playerName,
-          },
-        })
-      );
+      socket?.emit("message", {
+        mode: TEAM_GAME,
+        type: PLAYER_JOINED,
+        data: {
+          teamName: BLUE,
+          gameId: gameId,
+          playerName: playerName,
+        },
+      });
     }
   };
 
@@ -418,73 +421,90 @@ export const TeamGame = () => {
     <div className="py-14">
       {!started && (
         <>
-        <div className="flex flex-row flex-wrap gap-y-10 justify-center items-start align mx-8">
-          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-2">
-            <label className="text-white mb-2 pt-2 text-lg">Red Team</label>
-            <ul className="list-disc list-inside text-white">
-              {teamRed.map((player, index) => (
-                <li key={index}>{player}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="flex flex-col align w-full mx-auto">
-            <div className="mx-auto">
-              <CopyButton gameId={gameId} />
+          <div className="flex flex-row flex-wrap gap-y-10 justify-center items-start align mx-8">
+            <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-2">
+              <label className="text-white mb-2 pt-2 text-lg">Red Team</label>
+              <ul className="list-disc list-inside text-white">
+                {teamRed.map((player, index) => (
+                  <li key={index}>{player}</li>
+                ))}
+              </ul>
             </div>
-
-            <div className="bg-primaryBackground flex flex-col md:w-3/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-1">
-              <div className="flex w-full mb-4">
-                <label className="text-white mb-2 pt-2 text-lg">Name</label>
-                <input
-                  type="text"
-                  value={playerName}
-                  onChange={(e) => setPlayerName(e.target.value)}
-                  className="flex-1 mx-2 p-2 w-14 rounded"
-                  disabled={
-                    teamRed.includes(playerName) ||
-                    teamBlue.includes(playerName)
-                  }
-                />
-              </div>
-              <label className="text-white mb-2 text-lg">Teams</label>
-              <div className="flex flex-row gap-x-5 mb-5">
-                <Button onClick={() => joinTeam("red")}>Join Red</Button>
-                <Button onClick={() => joinTeam("blue")}>Join Blue</Button>
+            <div className="flex flex-col align w-full mx-auto">
+              <div className="mx-auto">
+                <CopyButton gameId={gameId} />
               </div>
 
-              {isLeader && (
-                <Button
-                  onClick={() => {
-                    socket?.emit(
-                      JSON.stringify({
+              <div className="bg-primaryBackground flex flex-col md:w-3/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-1">
+                <div className="flex w-full mb-4">
+                  <label className="text-white mb-2 pt-2 text-lg">Name</label>
+                  <input
+                    type="text"
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                    className="flex-1 mx-2 p-2 w-14 rounded"
+                    disabled={
+                      teamRed.includes(playerName) ||
+                      teamBlue.includes(playerName)
+                    }
+                  />
+                </div>
+                <label className="text-white mb-2 text-lg">Teams</label>
+                <div className="flex flex-row gap-x-5 mb-5">
+                  <button
+                    className="px-8 py-4 mx-auto text-2xl bg-button hover:bg-buttonFocus text-white font-bold rounded"
+                    onClick={() => joinTeam("red")}
+                    disabled={
+                      teamRed.includes(playerName) ||
+                      teamBlue.includes(playerName)
+                    }
+                  >
+                    Join Red
+                  </button>
+                  <button
+                    className="px-8 py-4 mx-auto text-2xl bg-button hover:bg-buttonFocus text-white font-bold rounded"
+                    onClick={() => joinTeam("blue")}
+                    disabled={
+                      teamRed.includes(playerName) ||
+                      teamBlue.includes(playerName)
+                    }
+                  >
+                    Join Blue
+                  </button>
+                </div>
+
+                {isLeader && (
+                  <Button
+                    onClick={() => {
+                      socket?.emit("message", {
                         mode: TEAM_GAME,
                         type: INIT_GAME,
                         data: {
                           gameId: gameId,
                           teamName: isPlayerInTeam(playerName),
                         },
-                      })
-                    );
-                  }}
-                >
-                  Load Game
-                </Button>
-              )}
+                      });
+                    }}
+                  >
+                    Load Game
+                  </Button>
+                )}
 
-              {isLeader && (
-                <div className="text-green-500">You are the leader!</div>
-              )}
+                {isLeader && (
+                  <div className="text-green-500">You are the leader!</div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-3">
+              <label className="text-white mb-2 pt-2 text-lg">Blue Team</label>
+              <ul className="list-disc list-inside text-white">
+                {teamBlue.map((player, index) => (
+                  <li key={index}>{player}</li>
+                ))}
+              </ul>
             </div>
           </div>
-          <div className="bg-primaryBackground flex flex-col md:w-2/5 mx-auto md:my-14 my-auto p-6 rounded-lg items-center justify-center order-3">
-            <label className="text-white mb-2 pt-2 text-lg">Blue Team</label>
-            <ul className="list-disc list-inside text-white">
-              {teamBlue.map((player, index) => (
-                <li key={index}>{player}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
         </>
       )}
       {started && (

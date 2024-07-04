@@ -22,7 +22,7 @@ class TeamGame {
                 member.socket.emit('message', {
                     type: messages_1.INIT_GAME,
                     payload: {
-                        data: crosswordData_1.crosswordData2,
+                        data: crosswordData_1.crosswordData,
                     },
                 });
             });
@@ -30,7 +30,7 @@ class TeamGame {
                 member.socket.emit('message', {
                     type: messages_1.INIT_GAME,
                     payload: {
-                        data: crosswordData_1.crosswordData2,
+                        data: crosswordData_1.crosswordData,
                     },
                 });
             });
@@ -45,6 +45,8 @@ class TeamGame {
             this.teamBlue.push(member);
         }
         this.broadcastTeamInfo();
+        console.log("Team Blue", this.teamBlue);
+        console.log("Team Red", this.teamRed);
     }
     statusUpdater(newPlayer) {
         newPlayer.emit('message', {
